@@ -2,6 +2,7 @@ import pygame
 import random
 from time import sleep
 
+
 NEGRO = (0, 0 ,0)
 BLANCO = (255, 255, 255)
 VERDE = (0, 255, 0)
@@ -83,3 +84,8 @@ while not hecho:
     reloj.tick(60)
 
 pygame.quit()
+
+
+
+
+
