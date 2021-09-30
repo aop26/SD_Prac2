@@ -15,7 +15,7 @@ CUAD3 = (120, 120, 200)
 CUAD4 = (200, 200, 120)
 
 dimensiones = [1000,1000]
-origen = [100, 100]
+origen = [50, 50]
 tamCelda = (dimensiones[0] - origen[0])/20
 
 # ====================================================================
@@ -32,6 +32,10 @@ pygame.display.set_caption("Mapa")
 hecho = False
 reloj = pygame.time.Clock()
 
+fuenteCuad = pygame.font.Font(None, 30) # fuente para los numeros de la cuadricula
+fuenteCola = pygame.font.Font(None, 75) # fuente para los numeros de la cola
+
+
 while not hecho:
     for evento in pygame.event.get():
         if evento.type == pygame.QUIT: 
@@ -47,17 +51,33 @@ while not hecho:
 
     pantalla.fill(BLANCO)
 
+
+    # se pintan los colores de los cuadrantes (por casualidad el logo de windows)
     pygame.draw.rect(pantalla, CUAD1, [origen[0],             origen[1],             tamCelda*10, tamCelda*10])
     pygame.draw.rect(pantalla, CUAD2, [origen[0]+tamCelda*10, origen[1],             tamCelda*10, tamCelda*10])
     pygame.draw.rect(pantalla, CUAD3, [origen[0],             origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
     pygame.draw.rect(pantalla, CUAD4, [origen[0]+tamCelda*10, origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
 
+    # se dibuja la cuadricula
     for i in range(20):
         pygame.draw.line(pantalla, NEGRO, [origen[0]+i*tamCelda, origen[1]], [origen[0]+i*tamCelda, dimensiones[1]], 3)
         pygame.draw.line(pantalla, NEGRO, [origen[0], origen[1]+i*tamCelda], [dimensiones[0], origen[1]+i*tamCelda], 3)
 
+   
+   
+    # se escriben los numeros de la cuadricula
+    pV0 = [origen[0]-tamCelda*0.6, origen[1]+tamCelda/2]
+    pH0 = [origen[0]+tamCelda/2, origen[1]-tamCelda*0.5]
 
-    # imprimir las cosas del mapa
+    for i in range(20):
+        txt = fuenteCuad.render(str(i+1), True, NEGRO)
+ 
+        pantalla.blit(txt, [pV0[0], pV0[1] + i*tamCelda])
+        pantalla.blit(txt, [pH0[0] + i*tamCelda, pH0[1]])
+
+    
+
+    # se imprimen las cosas del mapa
 
     pygame.display.flip()
     reloj.tick(60)
