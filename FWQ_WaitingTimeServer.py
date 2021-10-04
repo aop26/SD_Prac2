@@ -17,10 +17,10 @@ puerto= 0
 try:
     puerto = int(sys.argv[1])
 except:
-    print("La ID no es un número")
+    print("El puerto no es un número")
     printUso()
 
-if len(re.split(r'\D', sys.argv[2])) != 5:
+if len(re.split(r'\D', sys.argv[2])) != 5 or len(re.split(':', sys.argv[2]))!=2:
     print("Error leyendo ip del gestor de colas.")
     printUso()
 

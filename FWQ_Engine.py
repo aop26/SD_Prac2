@@ -13,7 +13,7 @@ if len(sys.argv) != 4:
     print("Número erróneo de argumentos.")
     printUso()
 
-if len(re.split(r'\D', sys.argv[1])) != 5:
+if len(re.split(r'\D', sys.argv[1])) != 5 or len(re.split(':', sys.argv[1]))!=2:
     print("Error leyendo ip del lector de colas.")
     printUso()
 
@@ -26,7 +26,7 @@ except:
     print("El número máximo de visitantes no es un número")
     printUso()
 
-if len(re.split(r'\D', sys.argv[3])) != 5:
+if len(re.split(r'\D', sys.argv[3])) or != 5 or len(re.split(':', sys.argv[3]))!=2:
     print("Error leyendo ip de FWQ_WaitingTimeServer.")
     printUso()
 

@@ -15,13 +15,13 @@ if len(sys.argv) != 3:
 
 
 
-if len(re.split(r'\D', sys.argv[1])) != 5:
+if len(re.split(r'\D', sys.argv[1])) != 5 or len(re.split(':', sys.argv[1]))!=2:
     print("Error leyendo ip de FWQ_Registry.")
     printUso()
 
 datosRegistry = re.split(':', sys.argv[1])
 
-if len(re.split(r'\D', sys.argv[2])) != 5:
+if len(re.split(r'\D', sys.argv[2])) != 5 or len(re.split(':', sys.argv[2]))!=2:
     print("Error leyendo ip del lector de colas.")
     printUso()
 

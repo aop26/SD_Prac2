@@ -15,7 +15,7 @@ if len(sys.argv) != 3:
 
 
 
-if len(re.split(r'\D', sys.argv[1])) != 5:
+if len(re.split(r'\D', sys.argv[1])) != 5 or len(re.split(':', sys.argv[1]))!=2:
     print("Error leyendo ip del gestor de colas.")
     printUso()
 
