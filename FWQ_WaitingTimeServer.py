@@ -20,9 +20,16 @@ except:
     print("El puerto no es un número")
     printUso()
 
+datosGestor = re.split(':', sys.argv[2])
+puertoGestor = 0
 if len(re.split(r'\D', sys.argv[2])) != 5 or len(re.split(':', sys.argv[2]))!=2:
     print("Error leyendo ip del gestor de colas.")
     printUso()
 
-datosGestor = re.split(':', sys.argv[2])
+try:
+    puertoGestor = int(datosGestor[1])
+except:
+    print("Error leyendo ip del gestor de colas.")
+    printUso()
 
+ipGestor = datosGestor[0]

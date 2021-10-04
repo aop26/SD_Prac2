@@ -14,15 +14,31 @@ if len(sys.argv) != 3:
     printUso()
 
 
+datosRegistry = re.split(':', sys.argv[1])
 
 if len(re.split(r'\D', sys.argv[1])) != 5 or len(re.split(':', sys.argv[1]))!=2:
     print("Error leyendo ip de FWQ_Registry.")
     printUso()
-
-datosRegistry = re.split(':', sys.argv[1])
-
-if len(re.split(r'\D', sys.argv[2])) != 5 or len(re.split(':', sys.argv[2]))!=2:
-    print("Error leyendo ip del lector de colas.")
+puertoRegistry = 0
+try:
+    puertoRegistry = int(datosRegistry[1])
+except:
+    print("Error leyendo ip de FWQ_Registry.")
     printUso()
 
+ipRegistry = datosRegistry[0]
+
+
 datosGestor = re.split(':', sys.argv[2])
+puertoGestor = 0
+if len(re.split(r'\D', sys.argv[2])) != 5 or len(re.split(':', sys.argv[2]))!=2:
+    print("Error leyendo ip del gestor de colas.")
+    printUso()
+
+try:
+    puertoGestor = int(datosGestor[1])
+except:
+    print("Error leyendo ip del gestor de colas.")
+    printUso()
+
+ipGestor = datosGestor[0]
