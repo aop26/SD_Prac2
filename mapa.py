@@ -1,7 +1,5 @@
 import pygame
-import random
 from time import sleep
-
 
 NEGRO = (0, 0 ,0)
 BLANCO = (255, 255, 255)
@@ -15,75 +13,154 @@ CUAD2 = (120, 200, 120)
 CUAD3 = (120, 120, 200)
 CUAD4 = (200, 200, 120)
 
-dimensiones = [1000,1000]
-origen = [50, 50]
-tamCelda = (dimensiones[0] - origen[0])/20
 
-# ====================================================================
+class Mapa:
+    def __init__(self, mapa):
+        self.mapa = mapa + []
+        self.dimensiones = [1000,1000]
+        self.origen = [50, 50]
+        self.tamCelda = (self.dimensiones[0] - self.origen[0])/20
 
+        pygame.init()
+        self.pantalla = pygame.display.set_mode(self.dimensiones) 
+        pygame.display.set_caption("Mapa")
+        self.hecho = False
+        self.reloj = pygame.time.Clock()
 
-
-mapa = [ [0 for j in range(20)] for i in range(20)]
-# habria que meter los datos del mapa con magia
-
-
-pygame.init()
-pantalla = pygame.display.set_mode(dimensiones) 
-pygame.display.set_caption("Mapa")
-hecho = False
-reloj = pygame.time.Clock()
-
-fuenteCuad = pygame.font.Font(None, 30) # fuente para los numeros de la cuadricula
-fuenteCola = pygame.font.Font(None, 75) # fuente para los numeros de la cola
+        self.fuenteCuad = pygame.font.Font(None, 30) # fuente para los numeros de la cuadricula
+        self.fuenteCola = pygame.font.Font(None, 75) # fuente para los numeros de la cola
 
 
-while not hecho:
-    for evento in pygame.event.get():
-        if evento.type == pygame.QUIT: 
-            hecho = True
-
-    # ---------------------------------------------------LÓGICA---------------------------------------------------
-    
-    # aqui se actualizaria el mapa
-    # para optimizar puede esperar aqui a que haya alguna actualizacion
-    # el programa puede parar indefinidamente y la ventana sigue sacando lo mismo
-
-    # ---------------------------------------------------DIBUJO---------------------------------------------------
-
-    pantalla.fill(BLANCO)
+    def Update(self, newMapa = []):
+        if(newMapa != []):
+            self.mapa = newMapa + []
 
 
-    # se pintan los colores de los cuadrantes (por casualidad el logo de windows)
-    pygame.draw.rect(pantalla, CUAD1, [origen[0],             origen[1],             tamCelda*10, tamCelda*10])
-    pygame.draw.rect(pantalla, CUAD2, [origen[0]+tamCelda*10, origen[1],             tamCelda*10, tamCelda*10])
-    pygame.draw.rect(pantalla, CUAD3, [origen[0],             origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
-    pygame.draw.rect(pantalla, CUAD4, [origen[0]+tamCelda*10, origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
+    def DrawMapa(self):
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT: 
+                pygame.quit()
+                return True
 
-    # se dibuja la cuadricula
-    for i in range(20):
-        pygame.draw.line(pantalla, NEGRO, [origen[0]+i*tamCelda, origen[1]], [origen[0]+i*tamCelda, dimensiones[1]], 3)
-        pygame.draw.line(pantalla, NEGRO, [origen[0], origen[1]+i*tamCelda], [dimensiones[0], origen[1]+i*tamCelda], 3)
+        self.pantalla.fill(BLANCO)
 
-   
-   
-    # se escriben los numeros de la cuadricula
-    pV0 = [origen[0]-tamCelda*0.6, origen[1]+tamCelda/2]
-    pH0 = [origen[0]+tamCelda/2, origen[1]-tamCelda*0.5]
 
-    for i in range(20):
-        txt = fuenteCuad.render(str(i+1), True, NEGRO)
- 
-        pantalla.blit(txt, [pV0[0], pV0[1] + i*tamCelda])
-        pantalla.blit(txt, [pH0[0] + i*tamCelda, pH0[1]])
+        # se pintan los colores de los cuadrantes (por casualidad el logo de windows)
+        pygame.draw.rect(self.pantalla, CUAD1, [self.origen[0], self.origen[1], 
+                                                self.tamCelda*10, self.tamCelda*10])
+        pygame.draw.rect(self.pantalla, CUAD2, [self.origen[0]+self.tamCelda*10, self.origen[1],             
+                                                self.tamCelda*10, self.tamCelda*10])
+        pygame.draw.rect(self.pantalla, CUAD3, [self.origen[0], self.origen[1]+self.tamCelda*10, 
+                                                self.tamCelda*10, self.tamCelda*10])
+        pygame.draw.rect(self.pantalla, CUAD4, [self.origen[0]+self.tamCelda*10, self.origen[1]+self.tamCelda*10, 
+                                                self.tamCelda*10, self.tamCelda*10])
+
+        # se dibuja la cuadricula
+        for i in range(20):
+            pygame.draw.line(self.pantalla, NEGRO, [self.origen[0]+i*self.tamCelda, self.origen[1]], 
+                                                   [self.origen[0]+i*self.tamCelda, self.dimensiones[1]], 3)
+            pygame.draw.line(self.pantalla, NEGRO, [self.origen[0], self.origen[1]+i*self.tamCelda], 
+                                                   [self.dimensiones[0], self.origen[1]+i*self.tamCelda], 3)
 
     
+    
+        # se escriben los numeros de la cuadricula
+        pV0 = [self.origen[0]-self.tamCelda*0.6, self.origen[1]+self.tamCelda/2]
+        pH0 = [self.origen[0]+self.tamCelda/2, self.origen[1]-self.tamCelda*0.5]
 
-    # se imprimen las cosas del mapa
+        for i in range(20):
+            txt = self.fuenteCuad.render(str(i+1), True, NEGRO)
+    
+            self.pantalla.blit(txt, [pV0[0], pV0[1] + i*self.tamCelda])
+            self.pantalla.blit(txt, [pH0[0] + i*self.tamCelda, pH0[1]])
 
-    pygame.display.flip()
-    reloj.tick(60)
+        
 
-pygame.quit()
+        # se imprimen las cosas del mapa
+        pygame.display.flip()
+        self.reloj.tick(60)
+
+
+
+
+
+
+
+
+
+
+
+if(__name__ == "__main__"):
+
+    dimensiones = [1000,1000]
+    origen = [50, 50]
+    tamCelda = (dimensiones[0] - origen[0])/20
+
+    # ====================================================================
+
+
+
+    mapa = [ [0 for j in range(20)] for i in range(20)]
+    # habria que meter los datos del mapa con magia
+
+
+    pygame.init()
+    pantalla = pygame.display.set_mode(dimensiones) 
+    pygame.display.set_caption("Mapa")
+    hecho = False
+    reloj = pygame.time.Clock()
+
+    fuenteCuad = pygame.font.Font(None, 30) # fuente para los numeros de la cuadricula
+    fuenteCola = pygame.font.Font(None, 75) # fuente para los numeros de la cola
+
+
+    while not hecho:
+        for evento in pygame.event.get():
+            if evento.type == pygame.QUIT: 
+                hecho = True
+
+        # ---------------------------------------------------LÓGICA---------------------------------------------------
+        
+        # aqui se actualizaria el mapa
+        # para optimizar puede esperar aqui a que haya alguna actualizacion
+        # el programa puede parar indefinidamente y la ventana sigue sacando lo mismo
+
+        # ---------------------------------------------------DIBUJO---------------------------------------------------
+
+        pantalla.fill(BLANCO)
+
+
+        # se pintan los colores de los cuadrantes (por casualidad el logo de windows)
+        pygame.draw.rect(pantalla, CUAD1, [origen[0],             origen[1],             tamCelda*10, tamCelda*10])
+        pygame.draw.rect(pantalla, CUAD2, [origen[0]+tamCelda*10, origen[1],             tamCelda*10, tamCelda*10])
+        pygame.draw.rect(pantalla, CUAD3, [origen[0],             origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
+        pygame.draw.rect(pantalla, CUAD4, [origen[0]+tamCelda*10, origen[1]+tamCelda*10, tamCelda*10, tamCelda*10])
+
+        # se dibuja la cuadricula
+        for i in range(20):
+            pygame.draw.line(pantalla, NEGRO, [origen[0]+i*tamCelda, origen[1]], [origen[0]+i*tamCelda, dimensiones[1]], 3)
+            pygame.draw.line(pantalla, NEGRO, [origen[0], origen[1]+i*tamCelda], [dimensiones[0], origen[1]+i*tamCelda], 3)
+
+    
+    
+        # se escriben los numeros de la cuadricula
+        pV0 = [origen[0]-tamCelda*0.6, origen[1]+tamCelda/2]
+        pH0 = [origen[0]+tamCelda/2, origen[1]-tamCelda*0.5]
+
+        for i in range(20):
+            txt = fuenteCuad.render(str(i+1), True, NEGRO)
+    
+            pantalla.blit(txt, [pV0[0], pV0[1] + i*tamCelda])
+            pantalla.blit(txt, [pH0[0] + i*tamCelda, pH0[1]])
+
+        
+
+        # se imprimen las cosas del mapa
+
+        pygame.display.flip()
+        reloj.tick(60)
+
+    pygame.quit()
 
 
 
