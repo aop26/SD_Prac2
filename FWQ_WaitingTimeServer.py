@@ -3,6 +3,8 @@
 import sys
 import socket
 import customutils as cu
+import atexit
+from kafka import KafkaConsumer
 
 #Lectura y comprobación de argumentos
 cu.uso = "FWQ_WaitingTimeServer [Puerto de escucha] [ip:puerto(gestor de colas)]"
@@ -26,3 +28,7 @@ s = socket.socket()
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((cu.getIP(),puerto))
 print("Created server at "+cu.getIP()+" with port "+str(puerto))
+atexit.register(lambda : s.close())
+sensorReader = KafkaConsumer('sensors',bootstrap_servers=sys.argv[2])
+while True:
+    
