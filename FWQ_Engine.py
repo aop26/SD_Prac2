@@ -5,7 +5,7 @@ import re
 
 def printUso():
     print("Uso del programa:")
-    print("FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(gestor de FWQ_WaitingTimeServer)]")
+    print("FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)]")
     sys.exit()
 
 
@@ -27,7 +27,7 @@ except:
     printUso()
 
 if len(re.split(r'\D', sys.argv[3])) != 5:
-    print("Error leyendo ip del lector de colas.")
+    print("Error leyendo ip de FWQ_WaitingTimeServer.")
     printUso()
 
 datosWTS = re.split(':', sys.argv[1])
