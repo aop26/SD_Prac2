@@ -1,20 +1,18 @@
 #!/usr/bin/python3
 
 import sys
-import re
+import customutils as cu
 
-def printUso():
-    print("Uso del programa:")
-    print("FWQ_Registry [Puerto de escucha]")
-    sys.exit()
+#Lectura y comprobación de argumentos
+cu.uso = "FWQ_Registry [Puerto de escucha]"
 
 if len(sys.argv) != 2:
     print("Número erróneo de argumentos.")
-    printUso()
+    cu.printUso()
 
 puerto = 0
 try:
     puerto = int(sys.argv[1])
 except:
     print("El puerto no es un número")
-    printUso()
+    cu.printUso()

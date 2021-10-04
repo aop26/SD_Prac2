@@ -1,49 +1,31 @@
 #!/usr/bin/python3
 
 import sys
-import re
-import ipaddress;
+import socket
+import customutils as cu
 
-def printUso():
-    print("Uso del programa:")
-    print("FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)]")
-    sys.exit()
+
+#Lectura y comprobación de argumentos
+cu.uso = "FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)]"
 
 
 if len(sys.argv) != 4:
     print("Número erróneo de argumentos.")
-    printUso()
+    cu.printUso()
 
-datosGestor = re.split(':', sys.argv[1])
-puertoGestor = 0
-if len(re.split(r'\D', sys.argv[1])) != 5 or len(re.split(':', sys.argv[1]))!=2:
-    print("Error leyendo ip del gestor de colas.")
-    printUso()
-
-try:
-    puertoGestor = int(datosGestor[1])
-except:
-    print("Error leyendo ip del gestor de colas.")
-    printUso()
-
-ipGestor = datosGestor[0]
+addressGestor = cu.checkIP(sys.argv[1],"gestor de colas")
 
 maxVisitantes = 0
 try:
     maxVisitantes = int(sys.argv[2])
 except:
     print("El número máximo de visitantes no es un número")
-    printUso()
+    cnu.printUso()
 
-datosWTS = re.split(':', sys.argv[3])
-if len(re.split(r'\D', sys.argv[3])) != 5 or len(re.split(':', sys.argv[3]))!=2:
-    print("Error leyendo ip de FWQ_WaitingTimeServer.")
-    printUso()
+addressWTS = cu.checkIP(sys.argv[3],"FWQ_WaitingTimeServer")
 
-try:
-    puertoWTS = int(datosWTS[1])
-except:
-    print("Error leyendo ip de FWQ_WaitingTimeServer.")
-    printUso()
-
-ipWTS = datosWTS[0]
+#Creación de sockets
+s = socket.socket()
+s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+s.bind((cu.getIP(),7777))
+print("Created server at "+cu.getIP()+" with port "+str(7777))
