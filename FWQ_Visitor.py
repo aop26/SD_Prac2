@@ -1,5 +1,7 @@
 #!/usr/bin/python3
 
+from Visitor import *
+from Ride import *
 from mapa import *
 import sys
 import customutils as cu
@@ -80,7 +82,7 @@ while(op != 4):
     
     elif(op == 3):
         # se inicia sesion
-        visitor = 0 # un boejto para un visitor
+        visitor = Visitor() # un boejto para un visitor
 
         m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
         
@@ -97,7 +99,6 @@ while(op != 4):
             if(atracciones[i] < 60): # si el tiempo de espera es menor a 60
                 atraccionSeleccionada = i
 
-        timer = 0
 
 
         hecho = False
@@ -112,21 +113,21 @@ while(op != 4):
                         atraccionSeleccionada = i
 
 
-            if(timer == 60):
+            if(visitor.timer == 60):
                 if(atraccionSeleccionada == -1): # si no hay nada se mueve random
                     move = [randrange(-1, 1), randrange(-1, 1)]
                 else:
                     dX = atracciones[atraccionSeleccionada].x - visitor.x
                     dY = atracciones[atraccionSeleccionada].y - visitor.y
                     move = [ dX/abs(dX), dY/abs(dY)]
-                timer = 0
+                visitor.Move(move)
                     
 
 
             clientMap.Update()
             hecho = clientMap.DrawMapa()
 
-            timer += 1
+            visitor.timer += 1
 
 
         op = 4
