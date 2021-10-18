@@ -4,7 +4,7 @@ import sys
 import customutils as cu
 from random import randrange
 from kafka import KafkaProducer
-import time
+from time import sleep
 
 def GetValue(n):
     if(n == ""):
