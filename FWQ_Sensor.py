@@ -3,6 +3,7 @@
 import sys
 import customutils as cu
 from random import randrange
+from time import sleep
 
 
 def GetValue(n):

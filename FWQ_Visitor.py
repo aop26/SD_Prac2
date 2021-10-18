@@ -1,8 +1,10 @@
 #!/usr/bin/python3
 
+from mapa import *
 import sys
 import customutils as cu
 from os import system
+from random import randrange
 
 #Lectura y comprobación de argumentos
 cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)]"
@@ -38,11 +40,15 @@ while(op != 4):
         # se desconecta de registry
         system("clear")
 
+# =================================================================================================================================================================
+ 
     elif(op == 2):
 
-        while(True):
+        # hay que ver como iniciar sesion.
+        sesionIniciada = False
 
-            # hay que ver como inicia sesion.
+
+        while(sesionIniciada):
             
             print("Que campo quieres editar?")
             print("nombre[n], contraseña[c], guardar[g], cancelar[q]")
@@ -58,8 +64,10 @@ while(op != 4):
                 # se conecta a registry
                 if(data[0] is not None):
                     # envia nombre
+                    txt = data[0]
                 if(data[1] is not None):
                     # envia contraseña
+                    txt = data[1]
                 # se desconecta de registry
             elif(editOp == "q"):
                 break
@@ -68,15 +76,65 @@ while(op != 4):
 
         system("clear")
 
+# =================================================================================================================================================================
+    
     elif(op == 3):
-        clientMap = Mapa([ [0 for j in range(20)] for i in range(20)])
+        # se inicia sesion
+        visitor = 0 # un boejto para un visitor
+
+        m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
+        
+        clientMap = Mapa(m)
+
+        atracciones = []
+        for i in range(20):
+            for j in range(20):
+                if(m[i][j]): # si es una atraccion
+                    atracciones.append(m[i][j])
+
+        atraccionSeleccionada = -1
+        for i in range(len(atracciones)):
+            if(atracciones[i] < 60): # si el tiempo de espera es menor a 60
+                atraccionSeleccionada = i
+
+        timer = 0
+
 
         hecho = False
 
         while not hecho:
+
+            if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
+               atracciones[atraccionSeleccionada] > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
+                atraccionSeleccionada = -1
+                for i in range(len(atracciones)):
+                    if(atracciones[i] < 60): 
+                        atraccionSeleccionada = i
+
+
+            if(timer == 60):
+                if(atraccionSeleccionada == -1): # si no hay nada se mueve random
+                    move = [randrange(-1, 1), randrange(-1, 1)]
+                else:
+                    dX = atracciones[atraccionSeleccionada].x - visitor.x
+                    dY = atracciones[atraccionSeleccionada].y - visitor.y
+                    move = [ dX/abs(dX), dY/abs(dY)]
+                timer = 0
+                    
+
+
             clientMap.Update()
             hecho = clientMap.DrawMapa()
 
+            timer += 1
+
+
         op = 4
+
+    else:
+        print("Opcion incorrecta.")
+        
+
+
 
 
