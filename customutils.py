@@ -23,7 +23,7 @@ def getIP():
 def checkIP(ip2check, que):
     datos = re.split(':', ip2check)
     puerto = 0
-    if len(re.split(r'\D', ip2check)) != 5 or len(re.split(':', ip2check))!=2:
+    if (len(re.split(r'\D', ip2check)) != 5 or len(re.split(':', ip2check))!=2) and datos[0]!='localhost':
         print("Error leyendo ip del " + que)
         printUso()
 

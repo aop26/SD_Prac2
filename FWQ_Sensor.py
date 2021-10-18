@@ -3,7 +3,8 @@
 import sys
 import customutils as cu
 from random import randrange
-
+from kafka import KafkaProducer
+import time
 
 def GetValue(n):
     if(n == ""):
@@ -37,16 +38,16 @@ addressGestor = cu.checkIP(sys.argv[1],"gestor de colas")
 
 ID= 0
 try:
-    puerto = int(sys.argv[2])
+    ID = int(sys.argv[2])
 except:
     print("La ID no es un número")
     cu.printUso()
 
-
+producer = KafkaProducer(bootstrap_servers=sys.argv[1])
 
 n, change = GetValue(input("input number"))
 
 while(True):
     n, change = UpdateValue(n, change)
-    # aqui envia el update a waiting server mediante kafka
-    sleep(randrange(1, 3))
+    producer.send('sensors',str(ID).encode('utf-8')+'-'.encode('utf-8')+ str(n).encode('utf-8'))
+    time.sleep(randrange(1, 3))
