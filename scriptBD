@@ -1,0 +1,29 @@
+
+
+create or replace table RIDE
+    ( id integer primary key autoincrement,
+    x integer, 
+    y integer, 
+    waitTime number(3)
+);
+
+
+
+create or replace table CLIENT
+    (id integer primary key autoincrement,
+    x integer, 
+    y integer,  
+    username varchar2 not null, 
+    password varchar2 not null,
+    constraint unique_userName unique(username)
+);
+
+
+
+insert into RIDE VALUES(12, 7, 1);
+insert into RIDE VALUES(1, 11, 2);
+insert into RIDE VALUES(17, 2, 3);
+insert into RIDE VALUES(5, 7, 4);
+
+insert into CLIENT(username, password) VALUES("mlb51", "patata");
+insert into CLIENT(username, password) VALUES("aop26", "polo");
