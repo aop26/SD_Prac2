@@ -20,7 +20,7 @@ try:
     maxVisitantes = int(sys.argv[2])
 except:
     print("El número máximo de visitantes no es un número")
-    cnu.printUso()
+    cu.printUso()
 
 addressWTS = cu.checkIP(sys.argv[3],"FWQ_WaitingTimeServer")
 

@@ -99,29 +99,38 @@ while(op != 4):
             if(atracciones[i] < 60): # si el tiempo de espera es menor a 60
                 atraccionSeleccionada = i
 
-
+        atrVisitadas = []
 
         hecho = False
 
         while not hecho:
+            if(visitor.wait == 0):
+                if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
+                atracciones[atraccionSeleccionada] > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
+                    atraccionSeleccionada = -1
+                    for i in range(len(atracciones)):
+                        if(atracciones[i] < 60 and i not in atrVisitadas): 
+                            atraccionSeleccionada = i
 
-            if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
-               atracciones[atraccionSeleccionada] > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
-                atraccionSeleccionada = -1
-                for i in range(len(atracciones)):
-                    if(atracciones[i] < 60): 
-                        atraccionSeleccionada = i
 
+                if(visitor.timer == 60):
+                    if(atraccionSeleccionada == -1): # si no hay nada se mueve random
+                        move = [randrange(-1, 1), randrange(-1, 1)]
+                    else:
+                        dX = atracciones[atraccionSeleccionada].x - visitor.x
+                        dY = atracciones[atraccionSeleccionada].y - visitor.y
+                        move = [ dX/abs(dX), dY/abs(dY)]
+                    visitor.Move(move)
 
-            if(visitor.timer == 60):
-                if(atraccionSeleccionada == -1): # si no hay nada se mueve random
-                    move = [randrange(-1, 1), randrange(-1, 1)]
-                else:
-                    dX = atracciones[atraccionSeleccionada].x - visitor.x
-                    dY = atracciones[atraccionSeleccionada].y - visitor.y
-                    move = [ dX/abs(dX), dY/abs(dY)]
-                visitor.Move(move)
-                    
+                if(atraccionSeleccionada!=-1 and visitor.IsIn(atracciones[atraccionSeleccionada])): # si ha llegado a su destino
+                    visitor.wait = 3*60 # espera 3 segundos
+                    atrVisitadas.append(atraccionSeleccionada)
+                    atraccionSeleccionada = -1
+
+            else:
+                visitor.wait -= 1
+                # espera hasta llegar a 0 y vuelve a buscar una atraccion
+                
 
 
             clientMap.Update()
