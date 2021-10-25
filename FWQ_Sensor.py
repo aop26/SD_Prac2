@@ -4,12 +4,33 @@ import sys
 import customutils as cu
 from random import randrange
 from kafka import KafkaProducer
-from time import sleep
+import time
+
+
+
+        
+class inputThread(threading.Thread):
+    def __init__(self,ipaddr):
+        threading.Thread.__init__(self)
+        self.name = "FWQ_WaitingTimeServer kafkaConsumer"
+
+
+    def run(self):
+        global n
+        global change 
+        while(True):
+            newValue = int(input())
+            if(newValue != -1):
+                n, change= newValue, 0
+            else:
+                n, change = GetValue()
+    
+
+
+
 
 def GetValue(n):
-    if(n == ""):
-        return randrange(10, 100), 1
-    return n, 0
+    return randrange(10, 100), 1
 
 
 def UpdateValue(n, change):
@@ -45,9 +66,21 @@ except:
 
 producer = KafkaProducer(bootstrap_servers=sys.argv[1])
 
-n, change = GetValue(input("input number"))
+
+
+
+def exit_handler():
+    global exit
+    exit = True
+    #cerrar cosas y tal
+atexit.register(exit_handler)
+
+
+global n, global change = GetValue() # se enciende el sensor y empieza a enviar datos
+fixedValue = inputThread()
+fixedValue.start()
 
 while(True):
-    n, change = UpdateValue(n, change)
+    global n, global change = UpdateValue(n, change)
     producer.send('sensors',str(ID).encode('utf-8')+'-'.encode('utf-8')+ str(n).encode('utf-8'))
     time.sleep(randrange(1, 3))
