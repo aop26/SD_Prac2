@@ -132,6 +132,11 @@ while(op != 4):
                 # espera hasta llegar a 0 y vuelve a buscar una atraccion
                 
 
+            def exit_handler():
+                global exit
+                exit = True
+                # cerrar conexiones y tal
+            atexit.register(exit_handler)
 
             clientMap.Update()
             hecho = clientMap.DrawMapa()
@@ -144,6 +149,11 @@ while(op != 4):
     else:
         print("Opcion incorrecta.")
         
+
+
+
+
+
 
 
 
