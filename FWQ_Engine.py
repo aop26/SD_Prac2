@@ -3,6 +3,36 @@
 import sys
 import socket
 import customutils as cu
+import threading
+import time
+import atexit
+from mapa import *
+
+global mapaEngine
+mapaEngine = Mapa([])
+
+class VisitorMovementThread(threading.Thread):
+    def __init__(self, pito):
+        self.pito = pito
+
+    def start(self):
+        while(True):
+            mapaActualizado = []
+            # recibe movimientos y repsonde enviando el mapa
+            mapaEngine.Update(mapaActualizado)
+
+
+class WaitingTimeThread(threading.Thread):
+    def __init__(self, pito):
+        self.pito = pito
+
+    def start(self):
+        while(True):
+            mapaActualizado = []
+            # comprueba el server de tiempos
+            mapaEngine.Update(mapaActualizado)
+            time.sleep(3)
+
 
 
 #Lectura y comprobación de argumentos
@@ -29,3 +59,20 @@ s = socket.socket()
 s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 s.bind((cu.getIP(),7777))
 print("Created server at "+cu.getIP()+" with port "+str(7777))
+
+
+waitTime = WaitingTimeThread()
+visitorMove = VisitorMovementThread()
+
+def exit_handler():
+    global exit
+    exit = True
+    # cerrar cosas
+atexit.register(exit_handler)
+
+waitTime.start()
+visitorMove.start()
+
+
+while not hecho:
+    hecho = mapaEngine.DrawMapa()

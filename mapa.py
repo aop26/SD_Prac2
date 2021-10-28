@@ -1,5 +1,7 @@
 import pygame
 from time import sleep
+from Ride import *
+from Visitor import *
 
 NEGRO = (0, 0 ,0)
 BLANCO = (255, 255, 255)
@@ -28,7 +30,7 @@ class Mapa:
         self.reloj = pygame.time.Clock()
 
         self.fuenteCuad = pygame.font.Font(None, 30) # fuente para los numeros de la cuadricula
-        self.fuenteCola = pygame.font.Font(None, 75) # fuente para los numeros de la cola
+        self.fuenteCola = pygame.font.Font(None, 55) # fuente para los numeros de la cola
 
 
     def Update(self, newMapa = []):
@@ -77,9 +79,18 @@ class Mapa:
         
 
         # se imprimen las cosas del mapa
+        for i in range(20):
+            for j in range(20):
+                if(isinstance(self.mapa[i][j], Ride)):
+                    txt = self.fuenteCola.render(str(self.mapa[i][j].waitingTime), True, NEGRO) 
+                    x = i*self.tamCelda + 5
+                    y = j*self.tamCelda + 5
+                    self.pantalla.blit(txt, [x, y])
+                elif(isinstance(self.mapa[i][j], Visitor)):
+                    pygame.draw.ellipse(self.pantalla, NEGRO, [i*self.tamCelda, j*self.tamCelda, self.tamCelda, self.tamCelda], 5)
         pygame.display.flip()
         self.reloj.tick(60)
-
+        return False
 
 
 
