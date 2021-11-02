@@ -1,15 +1,16 @@
 
 
-create or replace table RIDE
+create table if not exists  RIDE
     ( id integer primary key autoincrement,
     x integer, 
     y integer, 
-    waitTime number(3)
+    maxPeople integer,
+    waitTime integer
 );
 
 
 
-create or replace table CLIENT
+create table if not exists CLIENT
     (id integer primary key autoincrement,
     x integer, 
     y integer,  
@@ -20,10 +21,10 @@ create or replace table CLIENT
 
 
 
-insert into RIDE(x,y,waitTime) VALUES(12, 7, 1);
-insert into RIDE(x,y,waitTime) VALUES(1, 11, 2);
-insert into RIDE(x,y,waitTime) VALUES(17, 2, 3);
-insert into RIDE(x,y,waitTime) VALUES(5, 7, 4);
+insert into RIDE(x,y,waitTime,maxPeople) VALUES(12, 7, 10,4);
+insert into RIDE(x,y,waitTime,maxPeople) VALUES(1, 11, 20,3);
+insert into RIDE(x,y,waitTime,maxPeople) VALUES(17, 2, 30,2);
+insert into RIDE(x,y,waitTime,maxPeople) VALUES(5, 7, 40,1);
 
 insert into CLIENT(username, password) VALUES("mlb51", "patata");
 insert into CLIENT(username, password) VALUES("aop26", "polo");
