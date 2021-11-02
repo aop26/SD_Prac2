@@ -28,8 +28,8 @@ class kafkaConsumerThread(threading.Thread):
             atrpos, atrWaitTime, atrMaxVisitors = cu.leerAtr(id)
             visitors = int(re.split('-',message)[1])
             updateValue = visitors//atrMaxVisitors
-            if(visitors%atrMaxVisitors!=0):
-                updateValue +=1
+            #if(visitors%atrMaxVisitors!=0):
+            #    updateValue +=1
             updateValue*=atrWaitTime
             dictAtracciones.update({id:updateValue})
             print(dictAtracciones)
