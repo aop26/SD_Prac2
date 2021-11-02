@@ -54,9 +54,9 @@ def handle_client(conn, addr):
                 password = conn.recv(msg_length).decode(FORMAT)
 
                 if(name == ""):
-                    name = userData[1]
+                    name = userData[3]
                 if(password == ""):
-                    password = userData[2]
+                    password = userData[4]
                 cu.modifyUserDB(userData[0], name, password)
     
 
