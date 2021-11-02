@@ -1,35 +1,48 @@
 #!/usr/bin/python3
 
-import sys
+import sys, signal
 import customutils as cu
 from random import randrange
 from kafka import KafkaProducer
 import time
+import threading
+import atexit
 
+def ainput():
+    try:
+            foo = raw_input()
+            return foo
+    except:
+            # timeout
+            return
 
+def interrupted(signum, frame):
+    print("Stopping program")
 
-        
+exit = False
 class inputThread(threading.Thread):
-    def __init__(self,ipaddr):
+    def __init__(self):
         threading.Thread.__init__(self)
         self.name = "FWQ_WaitingTimeServer kafkaConsumer"
+        self.exit = False
 
 
     def run(self):
         global n
-        global change 
-        while(True):
-            newValue = int(input())
-            if(newValue != -1):
-                n, change= newValue, 0
-            else:
-                n, change = GetValue()
+        global change
+        while(not exit):
+            n, change = UpdateValue(n, change)
+            producer.send('sensors',str(ID).encode('utf-8')+'-'.encode('utf-8')+ str(n).encode('utf-8'))
+            time.sleep(randrange(1, 3))
+    def close(self):
+        producer.close()
+        quit()
     
 
 
 
 
-def GetValue(n):
+def GetValue():
     return randrange(10, 100), 1
 
 
@@ -39,7 +52,7 @@ def UpdateValue(n, change):
         if(n < 0):
             n = 0
         
-        if(randrange(1, 10) < 3): # solo cambia 1 tercio de las veces
+        if(randrange(1, 10) < 2): # solo cambia 1 decimo de las veces
             change *= -1
     
     return n, change
@@ -64,23 +77,43 @@ except:
     print("La ID no es un número")
     cu.printUso()
 
-producer = KafkaProducer(bootstrap_servers=sys.argv[1])
+
+producer = cu.kp(sys.argv[1])
 
 
 
+
+
+
+
+#global n
+#global change # se enciende el sensor y empieza a enviar datos
+
+n, change = GetValue()
+fixedValue = inputThread()
+fixedValue.start()
 
 def exit_handler():
     global exit
     exit = True
+    fixedValue.close()
+    #producer.close()
     #cerrar cosas y tal
 atexit.register(exit_handler)
 
+#signal.signal(signal.SIGALRM,interrupted)
+while(not exit):
+    newValue = 0
+    try:
+        newValue = int(input())
+        if(newValue != -1):
+            n, change= newValue, 0
+        else:
+            n, change = GetValue()
+    except KeyboardInterrupt:
+        print("Stopping program")
+        exit = True
+        fixedValue.close()
+        break
 
-global n, global change = GetValue() # se enciende el sensor y empieza a enviar datos
-fixedValue = inputThread()
-fixedValue.start()
 
-while(True):
-    global n, global change = UpdateValue(n, change)
-    producer.send('sensors',str(ID).encode('utf-8')+'-'.encode('utf-8')+ str(n).encode('utf-8'))
-    time.sleep(randrange(1, 3))

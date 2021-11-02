@@ -1,6 +1,8 @@
 import socket
 import re
 import sys 
+import time
+import kafka
 uso = ""
 
 def printUso():
@@ -35,3 +37,19 @@ def checkIP(ip2check, que):
 
     ip = datos[0]
     return (ip,puerto)
+
+def kp(ip):
+    while True:
+        try:
+            return kafka.KafkaProducer(bootstrap_servers=ip)
+        except:
+            print("No se ha podido conectar a kafka. Reintentando en 1 segundo.")
+            time.sleep(1)
+
+def kc(ip):
+    while True:
+        try:
+            return kafka.KafkaConsumer(bootstrap_servers=ip)
+        except:
+            print("No se ha podido conectar a kafka. Reintentando en 1 segundo.")
+            time.sleep(1)
