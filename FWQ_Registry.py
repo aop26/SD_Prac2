@@ -19,6 +19,7 @@ def handle_client(conn, addr):
     print(f"[NUEVA CONEXION] {addr} connected.")
 
     connected = True
+    userData = [-1]
     while connected:
         msg_length = conn.recv(HEADER).decode(FORMAT)
         
@@ -31,19 +32,33 @@ def handle_client(conn, addr):
             # crea perfil
             name = conn.recv(msg_length).decode(FORMAT)
             password = conn.recv(msg_length).decode(FORMAT)
+            if(cu.checkUserName(name)):
+                cu.crearUserDB(name, password)
+            else:
+                conn.send("Error. El nombre ya existe.".encode(FORMAT))
+
         elif(msg == "l"):
-            # login perfil
-            option = conn.recv(msg_length).decode(FORMAT)
-            
-            while(option != "q"):
-                if(option == "n"):
-                    name = conn.recv(msg_length).decode(FORMAT)
-                elif(option == "p"):
-                    password = conn.recv(msg_length).decode(FORMAT)
+            name = conn.recv(msg_length).decode(FORMAT)
+            password = conn.recv(msg_length).decode(FORMAT)
+            userData = cu.loginDB(name, password)
+            if(userData[0] != -1):
+                conn.send("Sesion inciada!".encode(FORMAT))
+            else:
+                conn.send("Error en el incio de seion.".encode(FORMAT))
 
-                option = conn.recv(msg_length).decode(FORMAT)
-        
+        elif(msg == "m"):
+            # modifica perfil
 
+            if(userData[0] != 1):
+                name = conn.recv(msg_length).decode(FORMAT)
+                password = conn.recv(msg_length).decode(FORMAT)
+
+                if(name == ""):
+                    name = userData[1]
+                if(password == ""):
+                    password = userData[2]
+                cu.modifyUserDB(userData[0], name, password)
+    
 
     conn.close()
     
