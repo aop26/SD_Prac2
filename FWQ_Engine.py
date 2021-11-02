@@ -13,6 +13,7 @@ from Visitor import *
 global mapaEngine
 nexit = True
 mapaEngine = Mapa(cu.mapaVacio())
+mapaActualizado = cu.mapaVacio()
 
 class VisitorMovementThread(threading.Thread):
     def __init__(self, addr):
@@ -22,12 +23,13 @@ class VisitorMovementThread(threading.Thread):
         self.visitantes = {}
     def run(self):
         global nexit
-        sensorReader = cu.kc(self.addr,'visitors')
+        visitorReader = cu.kc(self.addr,'visitors')
         while(nexit):
-            None
+            global mapaActualizado
+            msg = next(visitorReader)
             #mapaActualizado = cu.mapaVacio()
             # recibe movimientos y repsonde enviando el mapa
-            #mapaEngine.Update(mapaActualizado)
+            mapaEngine.Update(mapaActualizado)
     def stop():
         cu.stopAll()
 
@@ -42,19 +44,23 @@ class WaitingTimeThread(threading.Thread):
         print("prueba")
         global nexit
         while(nexit):
-            mapaActualizado = cu.mapaVacio()
+            global mapaActualizado
             # comprueba el server de tiempos
             s = socket.socket()
-            s.connect((self.addr[0],int(self.addr[1])))
-            res = s.recv(4096).decode('utf-8')
-            res = res.replace('{','').replace('}','').split(', ')
-            for i in res:
-                id = int(i.split(":")[0])
-                waitTime = int(i.split(":")[1])//60
-                pos, wtc, mp = cu.leerAtr(id)
-                ride = Ride(pos[0],pos[1],waitTime)
-                mapaActualizado[pos[0]][pos[1]]= ride
-            mapaEngine.Update(mapaActualizado)
+            try:
+                s.connect((self.addr[0],int(self.addr[1])))
+                res = s.recv(4096).decode('utf-8')
+                print("Recibidos datos del servidor de tiempos de espera en ",self.addr)
+                res = res.replace('{','').replace('}','').split(', ')
+                for i in res:
+                    id = int(i.split(":")[0])
+                    waitTime = int(i.split(":")[1])//60
+                    pos, wtc, mp = cu.leerAtr(id)
+                    ride = Ride(pos[0],pos[1],waitTime)
+                    mapaActualizado[pos[0]][pos[1]]= ride
+                mapaEngine.Update(mapaActualizado)
+            except Exception as e:
+                print("Cannot connect to waiting time server: ",e)
             time.sleep(2)
     def stop(self):
         print("Stopping server connection")
