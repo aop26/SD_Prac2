@@ -15,4 +15,6 @@ class Visitor:
 
     
     def IsIn(self, atraccion):
-        return self.x == atraccion.x and self.y == atraccion.y
+        dX = abs(self.x-atraccion.x)
+        dY = abs(self.y-atraccion.y)
+        return dX+dY <= 2
