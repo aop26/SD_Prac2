@@ -55,7 +55,6 @@ def kc(ip, topic):
     global nexit
     while nexit:
         try:
-            print(ip)
             return kafka.KafkaConsumer(topic,bootstrap_servers=ip)
         except Exception as e:
             print("No se ha podido conectar a kafka. Reintentando en 1 segundo.\n",e)
@@ -92,6 +91,55 @@ def leerAtr(ID):
     con.close()
     return [res[0],res[1]], res[2], res[3]
 
+def loginDB(username, password):
+    con = openDB()
+    cur = con.cursor()
+    try:
+        cur.execute(f'select id from CLIENT where username = "{username}" and password = "{password}"')
+    except Exception as e:
+        print(e)
+        con.close()
+        return -1
+    res = cur.fetchone()
+    con.close()
+    if(res):
+        return res[0]
+    else:
+        return -1
+
+def modifyUserDB(id,username,password):
+    con = openDB()
+    cur = con.cursor()
+    try:
+        cur.execute(f'update CLIENT set username="{username}",password="{password}" where ID = {id}')
+        con.commit()
+    except Exception as e:
+        print(e)
+        return False
+    con.close()
+    return True
+
+def crearUserDB(username,password):
+    con = openDB()
+    cur = con.cursor()
+    try:
+        cur.execute(f'insert into CLIENT(username, password) VALUES("{username}", "{password}")')
+        con.commit()
+    except Exception as e:
+        print(e)
+        return False
+    con.close()
+    return True
+
 def stopAll():
+    print("stopping all")
     global nexit
     nexit = False
+
+def mapaVacio():
+    mapaActualizado = []
+    for x in range(20):
+        mapaActualizado.append([])
+        for y in range(20):
+            mapaActualizado[x].append(-1)
+    return mapaActualizado

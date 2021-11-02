@@ -7,31 +7,60 @@ import threading
 import time
 import atexit
 from mapa import *
+from Ride import *
+from Visitor import *
 
 global mapaEngine
-mapaEngine = Mapa([])
+nexit = True
+mapaEngine = Mapa(cu.mapaVacio())
 
 class VisitorMovementThread(threading.Thread):
-    def __init__(self, pito):
-        self.pito = pito
-
-    def start(self):
-        while(True):
-            mapaActualizado = []
+    def __init__(self, addr):
+        threading.Thread.__init__(self)
+        self.addr = addr
+        self.name = "FWQ_EngineVisitorConsumer"
+        self.visitantes = {}
+    def run(self):
+        global nexit
+        sensorReader = cu.kc(self.addr,'visitors')
+        while(nexit):
+            None
+            #mapaActualizado = cu.mapaVacio()
             # recibe movimientos y repsonde enviando el mapa
-            mapaEngine.Update(mapaActualizado)
+            #mapaEngine.Update(mapaActualizado)
+    def stop():
+        cu.stopAll()
 
 
 class WaitingTimeThread(threading.Thread):
-    def __init__(self, pito):
-        self.pito = pito
+    def __init__(self, addr):
+        threading.Thread.__init__(self)
+        self.addr = addr
+        self.name = "FWQ_EngineWaitingServerConsumer"
 
-    def start(self):
-        while(True):
-            mapaActualizado = []
+    def run(self):
+        print("prueba")
+        global nexit
+        while(nexit):
+            mapaActualizado = cu.mapaVacio()
             # comprueba el server de tiempos
+            s = socket.socket()
+            s.connect((self.addr[0],int(self.addr[1])))
+            res = s.recv(4096).decode('utf-8')
+            res = res.replace('{','').replace('}','').split(', ')
+            for i in res:
+                id = int(i.split(":")[0])
+                waitTime = int(i.split(":")[1])//60
+                pos, wtc, mp = cu.leerAtr(id)
+                ride = Ride(pos[0],pos[1],waitTime)
+                mapaActualizado[pos[0]][pos[1]]= ride
             mapaEngine.Update(mapaActualizado)
-            time.sleep(3)
+            time.sleep(2)
+    def stop(self):
+        print("Stopping server connection")
+        cu.stopAll()
+        nexit = False
+        quit()
 
 
 
@@ -54,25 +83,28 @@ except:
 
 addressWTS = cu.checkIP(sys.argv[3],"FWQ_WaitingTimeServer")
 
-#Creación de sockets
-s = socket.socket()
-s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-s.bind((cu.getIP(),7777))
-print("Created server at "+cu.getIP()+" with port "+str(7777))
 
 
-waitTime = WaitingTimeThread()
-visitorMove = VisitorMovementThread()
+
+waitTime = WaitingTimeThread(addressWTS)
+visitorMove = VisitorMovementThread(sys.argv[1])
 
 def exit_handler():
-    global exit
-    exit = True
+    print("stopping")
+    global nexit
+    nexit = False
+    cu.stopAll()
+    waitTime.stop()
+    visitorMove.stop()
     # cerrar cosas
 atexit.register(exit_handler)
 
 waitTime.start()
 visitorMove.start()
 
-
+hecho = False
+print("Iniciados threads del servidor de tiempos de espera y del consumidor kafka")
 while not hecho:
     hecho = mapaEngine.DrawMapa()
+
+quit()
