@@ -60,6 +60,7 @@ while(op != 4):
                 done = True
 
         # se desconecta de registry
+        obj.send("FIN".encode('utf-8'))
         obj.close()
         
 
@@ -88,7 +89,7 @@ while(op != 4):
         if(respuesta.decode("utf-8") == "1"):
             sesionIniciada = True
 
-        obj.send("modify".encode())
+        obj.send("m".encode("utf-8"))
 
         while(sesionIniciada):
             
@@ -96,15 +97,15 @@ while(op != 4):
             print("nombre[n], contraseña[c], guardar[g], cancelar[q]")
 
             editOp = input("Elige una opcion: ")
-            data = [None, None]
+            data = ["", ""]
 
             if(editOp == "n"):
                 name = input("Escribe tu nombre: ")
-                obj.send(editOp.encode('utf-8'))
-                obj.send(name.encode('utf-8'))
             elif(editOp == "c"):
                 password = input("Escribe tu nombre: ")
-                obj.send(editOp.encode('utf-8'))
+            elif(editOp == "g"):
+                password = input("Escribe tu nombre: ")
+                obj.send(name.encode('utf-8'))
                 obj.send(password.encode('utf-8'))
             elif(editOp == "q"):
                 break
@@ -115,6 +116,7 @@ while(op != 4):
 
             respuesta = obj.recv(4096)
             print(respuesta.decode('utf-8'))
+            obj.send("FIN".encode('utf-8'))
         
         obj.close()
 

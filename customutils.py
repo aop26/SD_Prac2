@@ -91,11 +91,12 @@ def leerAtr(ID):
     con.close()
     return [res[0],res[1]], res[2], res[3]
 
-def loginDB(username, password):
+
+def checkUserName(username, password):
     con = openDB()
     cur = con.cursor()
     try:
-        cur.execute(f'select id from CLIENT where username = "{username}" and password = "{password}"')
+        cur.execute(f'select id from CLIENT where username = "{username}"')
     except Exception as e:
         print(e)
         con.close()
@@ -103,9 +104,26 @@ def loginDB(username, password):
     res = cur.fetchone()
     con.close()
     if(res):
-        return res[0]
+        return True
     else:
+        return False
+
+
+def loginDB(username, password):
+    con = openDB()
+    cur = con.cursor()
+    try:
+        cur.execute(f'select * from CLIENT where username = "{username}" and password = "{password}"')
+    except Exception as e:
+        print(e)
+        con.close()
         return -1
+    res = cur.fetchone()
+    con.close()
+    if(res):
+        return res
+    else:
+        return [-1]
 
 def modifyUserDB(id,username,password):
     con = openDB()
