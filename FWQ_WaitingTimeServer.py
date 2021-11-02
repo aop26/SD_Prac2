@@ -20,13 +20,22 @@ class kafkaConsumerThread(threading.Thread):
     def run(self):
         global dictAtracciones
         global exit
-        sensorReader = KafkaConsumer('sensors',bootstrap_servers=self.ipaddr)
+        sensorReader = cu.kc(self.ipaddr,'sensors')
         while not exit:
             msg = next(sensorReader)
             message = str(msg.value).replace('b','').replace("'",'')
-            dictAtracciones.update({int(re.split('-',message)[0]):int(re.split('-',message)[1])})
+            id = int(re.split('-',message)[0])
+            atrpos, atrWaitTime, atrMaxVisitors = cu.leerAtr(id)
+            visitors = int(re.split('-',message)[1])
+            updateValue = visitors//atrMaxVisitors
+            if(visitors%atrMaxVisitors!=0):
+                updateValue +=1
+            updateValue*=atrWaitTime
+            dictAtracciones.update({id:updateValue})
             print(dictAtracciones)
         sensorReader.close()
+    def stop():
+        cu.stopAll()
         
 
 class socketThread(threading.Thread):
@@ -82,9 +91,10 @@ def exit_handler():
     global exit
     exit = True
     print("Cerrando conexión...")
-    sensorReaderThread.join()
     serverThread.closeConnection()
+    cu.stopAll()
     print("Se ha cerrado la conexión con kafka y con Engine")
+    quit()
 atexit.register(exit_handler)
 
 sensorReaderThread.start()

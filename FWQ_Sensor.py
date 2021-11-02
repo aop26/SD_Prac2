@@ -96,6 +96,7 @@ fixedValue.start()
 def exit_handler():
     global exit
     exit = True
+    cu.stopAll()
     fixedValue.close()
     #producer.close()
     #cerrar cosas y tal
