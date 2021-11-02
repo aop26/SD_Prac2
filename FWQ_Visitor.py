@@ -7,6 +7,12 @@ import sys
 import customutils as cu
 from os import system
 from random import randrange
+import socket 
+
+
+HOST = 'localhost'
+PORT = 5050
+
 
 #Lectura y comprobación de argumentos
 cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)]"
@@ -31,16 +37,32 @@ while(op != 4):
     if(op == 1):
         # se conecta a registry
 
-        alias = input()
-        # se envia alias
+        obj = socket.socket()
+        obj.connect((HOST, PORT))
+        obj.send("4096".encode('utf-8'))
+        obj.send("c".encode('utf-8'))
 
-        name = input()
-        # se envia name
+        done = False
+        while(not done):
+            name = input("Escribe tu nombre: ")
+            obj.send(name.encode('utf-8'))
 
-        password = input()
-        # se envia password
+            password = input("Escribe tu contraseña: ")
+            obj.send(password.encode('utf-8'))
+
+            system("clear")
+
+            respuesta = obj.recv(4096)
+            print(respuesta.decode('utf-8'))
+
+            respuesta = obj.recv(4096)
+            if(respuesta.decode("utf-8") == "1"):
+                done = True
+
         # se desconecta de registry
-        system("clear")
+        obj.close()
+        
+
 
 # =================================================================================================================================================================
  
@@ -48,7 +70,25 @@ while(op != 4):
 
         # hay que ver como iniciar sesion.
         sesionIniciada = False
+        obj = socket.socket()
+        obj.connect((HOST, PORT))
+        obj.send("4096".encode('utf-8'))
+        obj.send("l".encode('utf-8'))
 
+        name = input("Escribe tu nombre: ")
+        obj.send(name.encode('utf-8'))
+        password = input("Escribe tu contraseña: ")
+        obj.send(password.encode('utf-8'))
+
+        system("clear")
+
+        respuesta = obj.recv(4096)
+        print(respuesta.decode('utf-8'))
+        respuesta = obj.recv(4096)
+        if(respuesta.decode("utf-8") == "1"):
+            sesionIniciada = True
+
+        obj.send("modify".encode())
 
         while(sesionIniciada):
             
@@ -59,24 +99,26 @@ while(op != 4):
             data = [None, None]
 
             if(editOp == "n"):
-                data[0] = input()
+                name = input("Escribe tu nombre: ")
+                obj.send(editOp.encode('utf-8'))
+                obj.send(name.encode('utf-8'))
             elif(editOp == "c"):
-                data[1] = input()
-            elif(editOp == "g"):
-                # se conecta a registry
-                if(data[0] is not None):
-                    # envia nombre
-                    txt = data[0]
-                if(data[1] is not None):
-                    # envia contraseña
-                    txt = data[1]
-                # se desconecta de registry
+                password = input("Escribe tu nombre: ")
+                obj.send(editOp.encode('utf-8'))
+                obj.send(password.encode('utf-8'))
             elif(editOp == "q"):
                 break
             else:
                 print("Opcion incorrecta.")
 
-        system("clear")
+            system("clear")
+
+            respuesta = obj.recv(4096)
+            print(respuesta.decode('utf-8'))
+        
+        obj.close()
+
+   
 
 # =================================================================================================================================================================
     
