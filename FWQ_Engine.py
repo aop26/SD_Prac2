@@ -54,7 +54,7 @@ class WaitingTimeThread(threading.Thread):
                 res = res.replace('{','').replace('}','').split(', ')
                 for i in res:
                     id = int(i.split(":")[0])
-                    waitTime = int(i.split(":")[1])//60
+                    waitTime = int(i.split(":")[1])
                     pos, wtc, mp = cu.leerAtr(id)
                     ride = Ride(pos[0],pos[1],waitTime)
                     mapaActualizado[pos[0]][pos[1]]= ride
