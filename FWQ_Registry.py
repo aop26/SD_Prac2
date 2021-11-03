@@ -34,8 +34,12 @@ def handle_client(conn, addr):
             password = conn.recv(msg_length).decode(FORMAT)
             if(cu.checkUserName(name)):
                 cu.crearUserDB(name, password)
+                conn.send("Nueva cuenta creada.".encode(FORMAT))
+                conn.send("1".encode(FORMAT))
             else:
-                conn.send("Error. El nombre ya existe.".encode(FORMAT))
+                conn.send("Error al crear la cuenta.".encode(FORMAT))
+                conn.send("0".encode(FORMAT))
+
 
         elif(msg == "l"):
             name = conn.recv(msg_length).decode(FORMAT)
@@ -43,8 +47,10 @@ def handle_client(conn, addr):
             userData = cu.loginDB(name, password)
             if(userData[0] != -1):
                 conn.send("Sesion inciada!".encode(FORMAT))
+                conn.send(str(userData[0]).encode(FORMAT))
             else:
-                conn.send("Error en el incio de seion.".encode(FORMAT))
+                conn.send("Error en el incio de sesion.".encode(FORMAT))
+                conn.send("-1".encode(FORMAT))
 
         elif(msg == "m"):
             # modifica perfil
@@ -57,8 +63,13 @@ def handle_client(conn, addr):
                     name = userData[3]
                 if(password == ""):
                     password = userData[4]
-                cu.modifyUserDB(userData[0], name, password)
-    
+                
+                if(cu.modifyUserDB(userData[0], name, password)):
+                    conn.send("Cuenta modificada.".encode(FORMAT))
+                    conn.send("1".encode(FORMAT))
+                else:
+                    conn.send("Error al modificar la cuenta.".encode(FORMAT))
+                    conn.send("0".encode(FORMAT))
 
     conn.close()
     
