@@ -26,7 +26,7 @@ addrReg = cu.checkIP(sys.argv[1],"FWQ_Registry")
 
 addrGes = cu.checkIP(sys.argv[2],"gestor de colas")
 
-
+op = 0
 while(op != 4):
     print("1. Crear perfil.")
     print("2. Editar perfil.")
@@ -38,8 +38,10 @@ while(op != 4):
         # se conecta a registry
 
         obj = socket.socket()
-        obj.connect((HOST, PORT))
+        #print(addrReg)
+        obj.connect((addrReg[0], addrReg[1]))
         obj.send("4096".encode('utf-8'))
+        sleep(0.1)
         obj.send("c".encode('utf-8'))
 
         done = False
@@ -72,8 +74,9 @@ while(op != 4):
         # hay que ver como iniciar sesion.
         sesionIniciada = False
         obj = socket.socket()
-        obj.connect((HOST, PORT))
+        obj.connect((addrReg[0], addrReg[1]))
         obj.send("4096".encode('utf-8'))
+        sleep(0.1)
         obj.send("l".encode('utf-8'))
 
         name = input("Escribe tu nombre: ")

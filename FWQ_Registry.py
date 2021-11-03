@@ -7,12 +7,32 @@ import threading
 
 
 HEADER = 64
-PORT = 5050
-SERVER = socket.gethostbyname(socket.gethostname())
-ADDR = (SERVER, PORT)
 FORMAT = 'utf-8'
 FIN = "FIN"
 MAX_CONEXIONES = 2
+
+#Lectura y comprobación de argumentos
+cu.uso = "FWQ_Registry [Puerto de escucha]"
+
+if len(sys.argv) != 2:
+    print("Número erróneo de argumentos.")
+    cu.printUso()
+
+puerto = 0
+try:
+    puerto = int(sys.argv[1])
+except:
+    print("El puerto no es un número")
+    cu.printUso()
+
+
+
+ADDR = (cu.getIP(), puerto)
+
+server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+server.bind(ADDR)
+
+print("[STARTING] Servidor inicializándose...")
 
 
 def handle_client(conn, addr):
@@ -66,7 +86,7 @@ def handle_client(conn, addr):
 
 def start():
     server.listen()
-    print(f"[LISTENING] Servidor a la escucha en {SERVER}")
+    print(f"[LISTENING] Servidor a la escucha en {ADDR}")
     CONEX_ACTIVAS = threading.active_count()-1
     print(CONEX_ACTIVAS)
     while True:
@@ -88,26 +108,6 @@ def start():
 
 ######################### MAIN ##########################
 
-#Lectura y comprobación de argumentos
-cu.uso = "FWQ_Registry [Puerto de escucha]"
-
-if len(sys.argv) != 2:
-    print("Número erróneo de argumentos.")
-    cu.printUso()
-
-puerto = 0
-try:
-    puerto = int(sys.argv[1])
-except:
-    print("El puerto no es un número")
-    cu.printUso()
-
-
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
-
-print("[STARTING] Servidor inicializándose...")
 
 start()
 

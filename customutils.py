@@ -92,7 +92,7 @@ def leerAtr(ID):
     return [res[0],res[1]], res[2], res[3]
 
 
-def checkUserName(username, password):
+def checkUserName(username):
     con = openDB()
     cur = con.cursor()
     try:
