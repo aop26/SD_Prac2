@@ -4,35 +4,14 @@ import sys
 import customutils as cu
 import socket
 import threading
-
+from time import sleep
 
 HEADER = 64
 FORMAT = 'utf-8'
 FIN = "FIN"
 MAX_CONEXIONES = 2
 
-#Lectura y comprobación de argumentos
-cu.uso = "FWQ_Registry [Puerto de escucha]"
 
-if len(sys.argv) != 2:
-    print("Número erróneo de argumentos.")
-    cu.printUso()
-
-puerto = 0
-try:
-    puerto = int(sys.argv[1])
-except:
-    print("El puerto no es un número")
-    cu.printUso()
-
-
-
-ADDR = (cu.getIP(), puerto)
-
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind(ADDR)
-
-print("[STARTING] Servidor inicializándose...")
 
 
 def handle_client(conn, addr):
@@ -40,56 +19,48 @@ def handle_client(conn, addr):
 
     connected = True
     userData = [-1]
+    msg_length = 4096
     while connected:
-        msg_length = conn.recv(HEADER).decode(FORMAT)
         
-        msg_length = int(msg_length)
         msg = conn.recv(msg_length).decode(FORMAT)
 
         if(msg == FIN):
             connected = False
         elif(msg == "c"):
             # crea perfil
-            name = conn.recv(msg_length).decode(FORMAT)
-            password = conn.recv(msg_length).decode(FORMAT)
-            if(cu.checkUserName(name)):
+            name, password = conn.recv(4096).decode(FORMAT).split("//")
+            if(not cu.checkUserName(name)):
                 cu.crearUserDB(name, password)
-                conn.send("Nueva cuenta creada.".encode(FORMAT))
-                conn.send("1".encode(FORMAT))
+                conn.send("Nueva cuenta creada.//1".encode(FORMAT))
             else:
-                conn.send("Error al crear la cuenta.".encode(FORMAT))
-                conn.send("0".encode(FORMAT))
+                conn.send("Error al crear la cuenta.//0".encode(FORMAT))
+
 
 
         elif(msg == "l"):
-            name = conn.recv(msg_length).decode(FORMAT)
-            password = conn.recv(msg_length).decode(FORMAT)
+            # login
+            name, password = conn.recv(4096).decode(FORMAT).split("//")
             userData = cu.loginDB(name, password)
             if(userData[0] != -1):
-                conn.send("Sesion inciada!".encode(FORMAT))
-                conn.send(str(userData[0]).encode(FORMAT))
+                conn.send(f"Sesion inciada!//{userData[0]}".encode(FORMAT))
             else:
-                conn.send("Error en el incio de sesion.".encode(FORMAT))
-                conn.send("-1".encode(FORMAT))
+                conn.send("Error en el incio de sesion.//-1".encode(FORMAT))
 
         elif(msg == "m"):
             # modifica perfil
 
             if(userData[0] != 1):
-                name = conn.recv(msg_length).decode(FORMAT)
-                password = conn.recv(msg_length).decode(FORMAT)
+                name, password = conn.recv(4096).decode(FORMAT).split("//")
 
-                if(name == ""):
+                if(name == "BLANK"):
                     name = userData[3]
-                if(password == ""):
+                if(password == "BLANK"):
                     password = userData[4]
                 
                 if(cu.modifyUserDB(userData[0], name, password)):
-                    conn.send("Cuenta modificada.".encode(FORMAT))
-                    conn.send("1".encode(FORMAT))
+                    conn.send("Cuenta modificada.//1".encode(FORMAT))
                 else:
-                    conn.send("Error al modificar la cuenta.".encode(FORMAT))
-                    conn.send("0".encode(FORMAT))
+                    conn.send("Error al modificar la cuenta.//0".encode(FORMAT))
 
     conn.close()
     
@@ -119,8 +90,30 @@ def start():
 
 ######################### MAIN ##########################
 
+if(__name__ == "__main__"):
+    #Lectura y comprobación de argumentos
+    cu.uso = "FWQ_Registry [Puerto de escucha]"
 
-start()
+    if len(sys.argv) != 2:
+        print("Número erróneo de argumentos.")
+        cu.printUso()
+
+    puerto = 0
+    try:
+        puerto = int(sys.argv[1])
+    except:
+        print("El puerto no es un número")
+        cu.printUso()
+
+
+
+    ADDR = (cu.getIP(), puerto)
+
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind(ADDR)
+
+    print("[STARTING] Servidor inicializándose...")
+    start()
 
 
 

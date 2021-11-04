@@ -103,7 +103,7 @@ def checkUserName(username):
         return -1
     res = cur.fetchone()
     con.close()
-    if(res):
+    if(res is not None):
         return True
     else:
         return False

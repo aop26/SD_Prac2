@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+from FWQ_Registry import FORMAT
 from Visitor import *
 from Ride import *
 from mapa import *
@@ -8,16 +9,26 @@ import customutils as cu
 from os import system
 from random import randrange
 import socket 
-
+import atexit
 
 HOST = 'localhost'
 PORT = 5050
+obj = ""
+def exit_handler():
+    global nexit
+    nexit = False
+    cu.stopAll()
+    if(isinstance(obj, socket.socket)):
+        obj.close()
+
+atexit.register(exit_handler)
+
 
 
 #Lectura y comprobación de argumentos
 cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)]"
 
-
+print("se comprueban los args")
 if len(sys.argv) != 3:
     print("Número erróneo de argumentos.")
     cu.printUso()
@@ -28,10 +39,11 @@ addrGes = cu.checkIP(sys.argv[2],"gestor de colas")
 
 op = 0
 while(op != 4):
+    obj = ""
     print("1. Crear perfil.")
     print("2. Editar perfil.")
     print("3. Entrar en parque.")
-    op = int(input("Elige una opcion."))
+    op = int(input("Elige una opcion: "))
 
 
     if(op == 1):
@@ -40,30 +52,23 @@ while(op != 4):
         obj = socket.socket()
         #print(addrReg)
         obj.connect((addrReg[0], addrReg[1]))
-        obj.send("4096".encode('utf-8'))
-        sleep(0.1)
         obj.send("c".encode('utf-8'))
 
         done = False
         while(not done):
             name = input("Escribe tu nombre: ")
-            obj.send(name.encode('utf-8'))
-
             password = input("Escribe tu contraseña: ")
-            obj.send(password.encode('utf-8'))
+            txt = name + "//" + password
+            obj.send(txt.encode('utf-8'))
+            #system("clear")
 
-            system("clear")
+            respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+            print(respuesta)
 
-            respuesta = obj.recv(4096)
-            print(respuesta.decode('utf-8'))
-
-            respuesta = obj.recv(4096)
-            if(respuesta.decode("utf-8") == "1"):
+            if(done == "1"):
                 done = True
-
-        # se desconecta de registry
-        obj.send("FIN".encode('utf-8'))
-        obj.close()
+                obj.send("FIN".encode('utf-8'))
+                obj.close()
         
 
 
@@ -75,21 +80,18 @@ while(op != 4):
         sesionIniciada = False
         obj = socket.socket()
         obj.connect((addrReg[0], addrReg[1]))
-        obj.send("4096".encode('utf-8'))
-        sleep(0.1)
         obj.send("l".encode('utf-8'))
 
         name = input("Escribe tu nombre: ")
-        obj.send(name.encode('utf-8'))
         password = input("Escribe tu contraseña: ")
-        obj.send(password.encode('utf-8'))
+        txt = name + "//" + password
+        obj.send(txt.encode('utf-8'))
 
-        system("clear")
+        #system("clear")
 
-        respuesta = obj.recv(4096)
-        print(respuesta.decode('utf-8'))
-        respuesta = obj.recv(4096)
-        if(respuesta.decode("utf-8") == "1"):
+        respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+        print(respuesta)
+        if(done != "-1"):
             sesionIniciada = True
 
         obj.send("m".encode("utf-8"))
@@ -100,30 +102,28 @@ while(op != 4):
             print("nombre[n], contraseña[c], guardar[g], cancelar[q]")
 
             editOp = input("Elige una opcion: ")
-            data = ["", ""]
+            data = ["BLANK", "BLANK"]
 
             if(editOp == "n"):
                 name = input("Escribe tu nombre: ")
             elif(editOp == "c"):
-                password = input("Escribe tu nombre: ")
+                password = input("Escribe tu contraseña: ")
             elif(editOp == "g"):
-                password = input("Escribe tu nombre: ")
-                obj.send(name.encode('utf-8'))
-                obj.send(password.encode('utf-8'))
+                txt = name + "//" + password
+                obj.send(txt.encode('utf-8'))
+                #system("clear")
+
+                respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+                print(respuesta)
+                obj.send("FIN".encode('utf-8'))
+                obj.close()
+                break
+
             elif(editOp == "q"):
                 break
             else:
                 print("Opcion incorrecta.")
 
-            system("clear")
-
-            respuesta = obj.recv(4096)
-            print(respuesta.decode('utf-8'))
-            obj.send("FIN".encode('utf-8'))
-        
-        obj.close()
-
-   
 
 # =================================================================================================================================================================
     
@@ -131,27 +131,25 @@ while(op != 4):
 
         sesionIniciada = False
         obj = socket.socket()
-        obj.connect((HOST, PORT))
-        obj.send("4096".encode('utf-8'))
+        obj.connect((addrReg[0], addrReg[1]))
         obj.send("l".encode('utf-8'))
 
         name = input("Escribe tu nombre: ")
-        obj.send(name.encode('utf-8'))
         password = input("Escribe tu contraseña: ")
-        obj.send(password.encode('utf-8'))
+        txt = name + "//" + password
+        obj.send(txt.encode('utf-8'))
+        
+        #system("clear")
 
-        system("clear")
-
-        respuesta = obj.recv(4096)
-        print(respuesta.decode('utf-8'))
-        respuesta = obj.recv(4096)
-        if(respuesta.decode("utf-8") != "-1"):
+        respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+        print(respuesta)
+        if(done != "-1"):
             sesionIniciada = True
         obj.send("FIN".encode('utf-8'))
         obj.close()
         
         if(sesionIniciada):
-            visitor = Visitor() # un boejto para un visitor
+            visitor = Visitor(done) # un boejto para un visitor
 
             m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor
