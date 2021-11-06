@@ -116,11 +116,11 @@ if(__name__ == "__main__"):
     v5 = Visitor(43)
 
     mapa = [ [0 for j in range(20)] for i in range(20)]
-    mapa[2][3] = v1
+    mapa[0][0] = v1
     mapa[4][3] = v2
     mapa[2][1] = v3
     mapa[4][1] = v4
-    mapa[3][2] = v5
+    mapa[19][19] = v5
 
     mapa = Mapa(mapa)
     hecho = False

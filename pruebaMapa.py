@@ -5,7 +5,7 @@ from random import randrange
 # ====================================================================
 
 
-v = Visitor() # un boejto para un visitor
+v = Visitor(23) # un boejto para un visitor
 
 m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
 m[10][7] = Ride(10, 7, 45)
