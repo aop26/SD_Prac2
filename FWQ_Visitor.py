@@ -208,7 +208,8 @@ while(op != 4):
         
 
         engineCon = cu.kp(sys.argv[2])
-        engineCon.send('movements',('join-'+name).encode('utf-8'))
+        #print(respuesta)
+        engineCon.send('movements',('join-'+done).encode('utf-8'))
         #updateMapThread = MapUpdateThread(addrEng)
         #updateMapThread.start()
         #m = False
@@ -216,13 +217,14 @@ while(op != 4):
         #    print("Waiting for engine")
         #    sleep(1)
         #m = cu.getMap(sys.argv[2],name)
-
-        m = cu.getMap(addrEng)
-        if(m!="NO"):
+        m=-1
+        while(m==-1):
+            m = cu.getMap(addrEng,done)
+        if(m!=-1):
             def exit_handler():
                 global nexit
                 nexit = False
-                engineCon.send('movements',('exit-'+name).encode('utf-8'))
+                engineCon.send('movements',('exit-'+done).encode('utf-8'))
                 engineCon.close()
                 cu.stopAll()
                 if(isinstance(obj, socket.socket)):
@@ -255,12 +257,12 @@ while(op != 4):
 
             while not hecho:
 
-                atracciones = []
-                for i in range(20):
-                    for j in range(20):
-                        if(isinstance(m[j][i], Ride)): # si es una atraccion
-                            atracciones.append(m[j][i])
                 if(visitor.wait == 0):
+                    atracciones = []
+                    for i in range(20):
+                        for j in range(20):
+                            if(isinstance(m[j][i], Ride)): # si es una atraccion
+                                atracciones.append(m[j][i])
                     if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
                     atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
                         atraccionSeleccionada = -1
@@ -292,7 +294,7 @@ while(op != 4):
                             m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
-                            engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+name).encode('utf-8'))
+                            engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
                             print(visitor.x, visitor.y)
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
                             visitor.wait = 3*60 # espera 3 segundos
@@ -306,12 +308,12 @@ while(op != 4):
                                 m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
-                                engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+name).encode('utf-8'))
+                                engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
                             # else: si es un visitor se espera. 
-                        backm = m
-                        m = cu.getMap(addrEng)
-                        if(m==None):
-                            m=backm
+                        m = cu.getMap(addrEng,done)
+                        if(m==-1):
+                            hecho=True
+                            break
                         #print(m)
 
                 else:
@@ -320,12 +322,13 @@ while(op != 4):
                     
 
 
-                backm = m
-                m = cu.getMap(addrEng)
-                if(m==None):
-                    m=backm
-                clientMap.Update(m)
-                hecho = clientMap.DrawMapa()
+                #m = cu.getMap(addrEng,name)
+                if(m==-1):
+                    hecho=True
+                    break
+                else:
+                    clientMap.Update(m)
+                    hecho = clientMap.DrawMapa()
 
                 visitor.timer += 1
 

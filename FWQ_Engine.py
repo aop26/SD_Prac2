@@ -15,15 +15,15 @@ global mapaEngine
 nexit = True
 mapaEngine = Mapa(cu.mapaVacio())
 mapaActualizado = cu.mapaVacio()
-
+visitantes = {}
 class VisitorMovementThread(threading.Thread):
     def __init__(self, addr):
         threading.Thread.__init__(self)
         self.addr = addr
         self.name = "FWQ_EngineVisitorConsumer"
-        self.visitantes = {}
     def run(self):
         global nexit
+        global visitantes
         visitorReader = cu.kc(self.addr,'movements')
         while(nexit):
             global mapaActualizado
@@ -31,26 +31,30 @@ class VisitorMovementThread(threading.Thread):
             message = str(msg.value).replace('b','').replace("'",'')
             action = message.split('-')[0]
             data = message.split('-')[1]
+            #print(data)
             if(action=="join"):
-                if(data not in self.visitantes and len(self.visitantes)>int(sys.argv[2])):
-                    kafkaProducer = cu.kp(self.addr)
-                    kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
-                    kafkaProducer.close()
+                if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
+                    visitantes[data]="NO"
+                    print(data," tried to log in!")
+                    #kafkaProducer = cu.kp(self.addr)
+                    #kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
+                    #kafkaProducer.close()
                 else:
-                    self.visitantes[data]=[0,0]
-                    mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
+                    visitantes[data]=[0,0]
+                    print(data," logged in!")
+                    #mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
                     ##cu.sendMap(self.addr,mapaActualizado,data)
-            elif(action=="move"):
+            elif(action=="move" and data.split(',')[3] in visitantes and visitantes[data.split(',')[3]]!="NO"):
                 name = data.split(',')[3]
-                mapaActualizado[self.visitantes[name][0]][self.visitantes[name][1]]=0
+                mapaActualizado[visitantes[name][0]][visitantes[name][1]]=0
                 posx=int(data.split(',')[0])
                 posy=int(data.split(',')[1])
-                self.visitantes[name] = [posx,posy]
+                visitantes[name] = [posx,posy]
                 mapaActualizado[posx][posy]=Visitor(int(data.split(',')[2]))
                 ##cu.sendMap(self.addr,mapaActualizado,name)
             elif(action=="exit"):
-                mapaActualizado[self.visitantes[data][0]][self.visitantes[data][1]]=0
-                self.visitantes.pop(data)
+                mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
+                visitantes.pop(data)
             #mapaActualizado = cu.mapaVacio()
             # recibe movimientos y repsonde enviando el mapa
             mapaEngine.Update(mapaActualizado)
@@ -103,13 +107,21 @@ class MapThread(threading.Thread):
     def run(self):
         global mapaActualizado
         global exit
+        global visitantes
         print("Creado servidor en "+cu.getIP()+" con puerto "+str(puerto))
         self.s.listen()
         while True:
             #print("Esperando")
             (clientSocket, clientIP) = self.s.accept()
             #print("Sending current map to "+str(clientIP))
-            clientSocket.send(cu.mapToStr(mapaActualizado).encode('utf-8'))
+            name = clientSocket.recv(4096).decode('utf-8')
+            sleep(0.5)
+            if(name in visitantes and visitantes[name]!="NO"):
+                clientSocket.send(cu.mapToStr(mapaActualizado).encode('utf-8'))
+            else:
+                print(name, "where do you think you are going?")
+                print(visitantes)
+                clientSocket.send("NO".encode('utf-8'))
             clientSocket.close()
         self.s.close()
     def closeConnection(self):

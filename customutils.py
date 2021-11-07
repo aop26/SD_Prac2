@@ -72,17 +72,24 @@ def kc(ip, topic):
             if(not nexit):
                 quit()
 
-def getMap(addr):
+def getMap(addr,name):
     s = socket.socket()
-    try:
-        #print("Connecting to ",addr)
-        s.connect((addr[0],int(addr[1])))
-        res = s.recv(4096).decode('utf-8')
-        #print("Recibidos datos del engine en ",addr)
-        return strToMap(res)
-        
-    except Exception as e:
-        print("Cannot connect to engine: ",e)
+    for i in range(5):
+        try:
+            #print("Connecting to ",addr)
+            s.connect((addr[0],int(addr[1])))
+            #print("Sent",name)
+            s.send(name.encode('utf-8'))
+            res = s.recv(4096).decode('utf-8')
+            #print("Recibidos datos del engine en ",addr)
+            if(res!="NO"):
+                return strToMap(res)
+            else:
+                return -1
+            
+        except Exception as e:
+            print("Cannot connect to engine: ",e)
+    return -1
     #time.sleep(2)
     #kafkaConsumer = kc(ip,name+"_map")
     #print(name+'_map')
@@ -169,7 +176,7 @@ def strToMap(s):
             m[currentCount-(currentCount//20)*20][currentCount//20]=v
         #print(i)
         currentCount+=1
-    print(currentCount)
+    #print(currentCount)
     return m
 
     
