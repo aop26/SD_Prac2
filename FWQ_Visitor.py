@@ -308,8 +308,11 @@ while(op != 4):
                                 visitor.Move(move)
                                 engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+name).encode('utf-8'))
                             # else: si es un visitor se espera. 
+                        backm = m
                         m = cu.getMap(addrEng)
-                        print(m)
+                        if(m==None):
+                            m=backm
+                        #print(m)
 
                 else:
                     visitor.wait -= 1
@@ -317,8 +320,11 @@ while(op != 4):
                     
 
 
+                backm = m
                 m = cu.getMap(addrEng)
-                clientMap.Update(cu.getMap(addrEng))
+                if(m==None):
+                    m=backm
+                clientMap.Update(m)
                 hecho = clientMap.DrawMapa()
 
                 visitor.timer += 1

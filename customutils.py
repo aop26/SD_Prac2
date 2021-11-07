@@ -74,16 +74,11 @@ def kc(ip, topic):
 
 def getMap(addr):
     s = socket.socket()
-    print("Connecting to ",addr)
-    s.connect((addr[0],int(addr[1])))
-    res = s.recv(4096).decode('utf-8')
-    print("Recibidos datos del engine en ",addr)
-    return strToMap(res)
     try:
-        print("Connecting to ",addr)
+        #print("Connecting to ",addr)
         s.connect((addr[0],int(addr[1])))
         res = s.recv(4096).decode('utf-8')
-        print("Recibidos datos del engine en ",addr)
+        #print("Recibidos datos del engine en ",addr)
         return strToMap(res)
         
     except Exception as e:
@@ -135,7 +130,7 @@ def mapToStr(map):
                     s+="u"+str(map[j][i].id)
                 else:
                     s+='-'
-    print("str:",s)
+    #print("str:",s)
     return s
 
 

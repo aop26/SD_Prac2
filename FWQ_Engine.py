@@ -74,7 +74,7 @@ class WaitingTimeThread(threading.Thread):
             try:
                 s.connect((self.addr[0],int(self.addr[1])))
                 res = s.recv(4096).decode('utf-8')
-                print("Recibidos datos del servidor de tiempos de espera en ",self.addr)
+                #print("Recibidos datos del servidor de tiempos de espera en ",self.addr)
                 res = res.replace('{','').replace('}','').split(', ')
                 for i in res:
                     id = int(i.split(":")[0])
@@ -106,9 +106,9 @@ class MapThread(threading.Thread):
         print("Creado servidor en "+cu.getIP()+" con puerto "+str(puerto))
         self.s.listen()
         while True:
-            print("Esperando")
+            #print("Esperando")
             (clientSocket, clientIP) = self.s.accept()
-            print("Sending current map to "+str(clientIP))
+            #print("Sending current map to "+str(clientIP))
             clientSocket.send(cu.mapToStr(mapaActualizado).encode('utf-8'))
             clientSocket.close()
         self.s.close()
