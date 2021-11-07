@@ -317,7 +317,8 @@ while(op != 4):
                     
 
 
-                clientMap.Update(m)
+                m = cu.getMap(addrEng)
+                clientMap.Update(cu.getMap(addrEng))
                 hecho = clientMap.DrawMapa()
 
                 visitor.timer += 1
