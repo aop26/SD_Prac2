@@ -1,5 +1,13 @@
 #!/usr/bin/python3
 
+from selectors import PollSelector
+import threading
+import time
+from kafka.consumer import group
+from kafka.consumer.group import KafkaConsumer
+from kafka.errors import KafkaConfigurationError
+from kafka.producer.kafka import KafkaProducer
+from kafka.structs import TopicPartition
 from FWQ_Registry import FORMAT
 from Visitor import *
 from Ride import *
@@ -14,28 +22,78 @@ import atexit
 HOST = 'localhost'
 PORT = 5050
 obj = ""
+nexit = True
 def exit_handler():
     global nexit
+    global engineCon
     nexit = False
     cu.stopAll()
     if(isinstance(obj, socket.socket)):
         obj.close()
+    if(isinstance(engineCon, KafkaConsumer)):
+        engineCon.close()
 
 atexit.register(exit_handler)
-
-
+m = "NO"
+class MapUpdateThread(threading.Thread):
+    def __init__(self, addr):
+        threading.Thread.__init__(self)
+        self.addr = addr
+        self.name = "FWQ_EngineVisitorMapConsumer"
+        self.visitantes = 0
+    def run(self):
+        global nexit
+        global m
+        mapConsumer = None
+        #while not mapConsumer:
+        #    try:
+        #        topic = name+"_map"
+        #        mapConsumer= KafkaConsumer(bootstrap_servers=self.addr,group_id=None,auto_offset_reset="earliest")#KafkaConsumer(bootstrap_servers=sys.argv[2],group_id=None)#
+        #        mapConsumer.assign([TopicPartition(topic,0)])
+        #        #mapConsumer.assign([TopicPartition(name+'_map',0)])
+        #        #mapConsumer.poll()
+        #        #mapConsumer.seek_to_beginning()
+        #    except Exception as e:
+        #        print("No se ha podido conectar a kafka. Reintentando en 1 segundo.\n",e)
+        #        time.sleep(1)
+        #        if(not nexit):
+        #            quit()
+        #print("waiting")
+        asdf = 0
+        while(nexit):
+            m = cu.getMap(self.addr)
+            print(m)
+            sleep(1)
+            #print("waiting",asdf)
+            #asdf+=1
+            #print(mapConsumer.highwater(TopicPartition(topic,0)))
+            #msg = next(mapConsumer)
+            #message = str(msg.value).replace('b','').replace("'",'')
+            #m=False
+            #if(message == "NO"):
+            #    m= "NO"
+            #else:
+            #    m= cu.strToMap(message)
+            #mapConsumer.close()
+            #mapConsumer= KafkaConsumer(bootstrap_servers=self.addr,group_id=None,auto_offset_reset="latest")#KafkaConsumer(bootstrap_servers=sys.argv[2],group_id=None)#
+            #mapConsumer.assign([TopicPartition(topic,0)])
+    def stop():
+        nexit = False
+        cu.stopAll()
 
 #Lectura y comprobación de argumentos
-cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)]"
+cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
 
 print("se comprueban los args")
-if len(sys.argv) != 3:
+if len(sys.argv) != 4:
     print("Número erróneo de argumentos.")
     cu.printUso()
 
 addrReg = cu.checkIP(sys.argv[1],"FWQ_Registry")
 
 addrGes = cu.checkIP(sys.argv[2],"gestor de colas")
+
+addrEng = cu.checkIP(sys.argv[3],"engine")
 
 op = 0
 while(op != 4):
@@ -148,10 +206,32 @@ while(op != 4):
         obj.send("FIN".encode('utf-8'))
         obj.close()
         
-        if(sesionIniciada):
+
+        engineCon = cu.kp(sys.argv[2])
+        engineCon.send('movements',('join-'+name).encode('utf-8'))
+        #updateMapThread = MapUpdateThread(addrEng)
+        #updateMapThread.start()
+        #m = False
+        #while(m == False):
+        #    print("Waiting for engine")
+        #    sleep(1)
+        #m = cu.getMap(sys.argv[2],name)
+
+        m = cu.getMap(addrEng)
+        if(m!="NO"):
+            def exit_handler():
+                global nexit
+                nexit = False
+                engineCon.send('movements',('exit-'+name).encode('utf-8'))
+                engineCon.close()
+                cu.stopAll()
+                if(isinstance(obj, socket.socket)):
+                    obj.close()
+
+            atexit.register(exit_handler)
             visitor = Visitor(done) # un boejto para un visitor
 
-            m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
+            #m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor
 
             clientMap = Mapa(m)
@@ -174,6 +254,12 @@ while(op != 4):
             hecho = False
 
             while not hecho:
+
+                atracciones = []
+                for i in range(20):
+                    for j in range(20):
+                        if(isinstance(m[j][i], Ride)): # si es una atraccion
+                            atracciones.append(m[j][i])
                 if(visitor.wait == 0):
                     if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
                     atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
@@ -181,7 +267,7 @@ while(op != 4):
                         for i in range(len(atracciones)):
                             if(atracciones[i].waitingTime < 60 and i not in atrVisitadas): 
                                 atraccionSeleccionada = i
-                                print("selecciona:", i)
+                                print("selecciona:", i,atracciones[i].x,atracciones[i].y)
                                 break
 
 
@@ -206,6 +292,7 @@ while(op != 4):
                             m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
+                            engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+name).encode('utf-8'))
                             print(visitor.x, visitor.y)
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
                             visitor.wait = 3*60 # espera 3 segundos
@@ -219,7 +306,10 @@ while(op != 4):
                                 m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
+                                engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+name).encode('utf-8'))
                             # else: si es un visitor se espera. 
+                        m = cu.getMap(addrEng)
+                        print(m)
 
                 else:
                     visitor.wait -= 1
@@ -227,7 +317,7 @@ while(op != 4):
                     
 
 
-                clientMap.Update()
+                clientMap.Update(m)
                 hecho = clientMap.DrawMapa()
 
                 visitor.timer += 1

@@ -3,9 +3,14 @@ import re
 import sys 
 import time
 import kafka
+from kafka.admin import KafkaAdminClient,NewTopic 
 from os.path import exists
 import os
 import sqlite3
+
+from kafka.producer.kafka import KafkaProducer
+from Ride import *
+from Visitor import *
 uso = ""
 
 nexit = True
@@ -53,14 +58,116 @@ def kp(ip):
 
 def kc(ip, topic):
     global nexit
+    #try:
+    #    admin_clinet = KafkaAdminClient(bootstrap_servers=ip, client_id='test')
+    #    admin_clinet.create_topics(new_topics=[NewTopic(name=topic, num_partitions=1, replication_factor=1)],validate_only=False)
+    #except Exception as e:
+    #    print("No se ha podido crear el nuevo topic",e)
     while nexit:
         try:
-            return kafka.KafkaConsumer(topic,bootstrap_servers=ip)
+            return kafka.KafkaConsumer(topic,bootstrap_servers=ip,group_id=None)
         except Exception as e:
             print("No se ha podido conectar a kafka. Reintentando en 1 segundo.\n",e)
             time.sleep(1)
             if(not nexit):
                 quit()
+
+def getMap(addr):
+    s = socket.socket()
+    print("Connecting to ",addr)
+    s.connect((addr[0],int(addr[1])))
+    res = s.recv(4096).decode('utf-8')
+    print("Recibidos datos del engine en ",addr)
+    return strToMap(res)
+    try:
+        print("Connecting to ",addr)
+        s.connect((addr[0],int(addr[1])))
+        res = s.recv(4096).decode('utf-8')
+        print("Recibidos datos del engine en ",addr)
+        return strToMap(res)
+        
+    except Exception as e:
+        print("Cannot connect to engine: ",e)
+    #time.sleep(2)
+    #kafkaConsumer = kc(ip,name+"_map")
+    #print(name+'_map')
+    ##ste = False
+    ##while not ste:
+    ##    try:
+    ##        kafkaConsumer.seek_to_end()
+    ##
+    ##    except Exception as e:
+    ##        print("waiting for engine",e)
+    ##        time.sleep(1)
+    #message = ""
+    #for msg in kafkaConsumer:
+    #    print("premsg")
+    #    
+    #    break
+    #msg = next(kafkaConsumer)
+    #message =str(msg.value).replace('b','').replace("'",'')
+    #print("postmsg")
+    ##message = str(msg.value).replace('b','').replace("'",'')
+    #print(message)
+    #if(message == "NO"):
+    #    return "NO"
+    #else:
+    #    return strToMap(message)
+    #return message
+
+def sendMap(ip,map,name):
+    print(name+"_map")
+    s = mapToStr(map)
+    print(name+"_map")
+    kafkaProducer=kp(ip)
+    print(name+"_map")
+    kafkaProducer.send(name+'_map',value=s.encode('utf-8'))
+    print(s)
+    kafkaProducer.close()
+    
+def mapToStr(map):
+    s = ""
+    for i in range(20):
+            for j in range(20):
+                if(isinstance(map[j][i], Ride)):
+                    s+="r"+str(map[j][i].waitingTime)
+                elif(isinstance(map[j][i], Visitor)):
+                    s+="u"+str(map[j][i].id)
+                else:
+                    s+='-'
+    print("str:",s)
+    return s
+
+
+def strToMap(s):
+    m = [ [0 for j in range(20)] for i in range(20)]
+    mapStr = [char for char in s]
+    currentCount = 0
+    for i in range(len(mapStr)):
+        if(mapStr[i]=='r'):
+            auxStr = ""
+            i+=1
+            while(i<len(mapStr)and mapStr[i].isdigit()):
+                auxStr+=mapStr[i]
+                i+=1
+            m[currentCount-(currentCount//20)*20][currentCount//20]=Ride(currentCount-(currentCount//20)*20, currentCount//20, int(auxStr))
+        elif(mapStr[i]=='u'):
+            auxStr = ""
+            i+=1
+            while(i<len(mapStr)and mapStr[i].isdigit()):
+                auxStr+=mapStr[i]
+                i+=1
+            v = Visitor(int(auxStr))
+            v.x=currentCount-(currentCount//20)*20
+            v.y=currentCount//20
+            m[currentCount-(currentCount//20)*20][currentCount//20]=v
+
+        currentCount+=1
+    return m
+
+    
+
+
 
 def openDB():
     if(not exists('database.db')):
