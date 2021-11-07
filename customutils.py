@@ -135,29 +135,41 @@ def mapToStr(map):
 
 
 def strToMap(s):
+    #print("str:",s)
     m = [ [0 for j in range(20)] for i in range(20)]
     mapStr = [char for char in s]
     currentCount = 0
+    toskip=0
     for i in range(len(mapStr)):
+        if(toskip>0):
+            toskip-=1
+            continue
         if(mapStr[i]=='r'):
+            #print("ride")
             auxStr = ""
             i+=1
+            #toskip+=1
             while(i<len(mapStr)and mapStr[i].isdigit()):
                 auxStr+=mapStr[i]
                 i+=1
+                toskip+=1
             m[currentCount-(currentCount//20)*20][currentCount//20]=Ride(currentCount-(currentCount//20)*20, currentCount//20, int(auxStr))
         elif(mapStr[i]=='u'):
+            #print("user")
             auxStr = ""
             i+=1
+            #toskip+=1
             while(i<len(mapStr)and mapStr[i].isdigit()):
                 auxStr+=mapStr[i]
                 i+=1
+                toskip+=1
             v = Visitor(int(auxStr))
             v.x=currentCount-(currentCount//20)*20
             v.y=currentCount//20
             m[currentCount-(currentCount//20)*20][currentCount//20]=v
-
+        #print(i)
         currentCount+=1
+    print(currentCount)
     return m
 
     
