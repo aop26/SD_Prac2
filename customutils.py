@@ -7,6 +7,7 @@ from kafka.admin import KafkaAdminClient,NewTopic
 from os.path import exists
 import os
 import sqlite3
+from Crypto.Cipher import AES 
 
 from kafka.producer.kafka import KafkaProducer
 from Ride import *
@@ -82,11 +83,16 @@ def getMap(addr,name):
             s.send(name.encode('utf-8'))
             res = s.recv(4096).decode('utf-8')
             #print("Recibidos datos del engine en ",addr)
-            if(res!="NO"):
-                return strToMap(res)
-            else:
+            if(res=="NO"):
                 return -1
-            
+            elif(res=="403"):
+                print("No se puede iniciar sesion.")
+                return 403
+            elif(res=="420"):
+                print("Parque lleno. Espere unos minutos.")
+                return -1
+            else:
+                return strToMap(res)
         except Exception as e:
             print("Cannot connect to engine: ",e)
     return -1
@@ -282,3 +288,24 @@ def mapaVacio():
         for y in range(20):
             mapaActualizado[x].append(-1)
     return mapaActualizado
+
+
+def GetKey():
+    file = open("clave", "r")
+    key = file.readline()
+    file.close()
+    return key
+
+
+
+
+def EncryptPasswd(password):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    while(len(password) < 16):
+        password += " "
+    return cifrar.encrypt(password)
+
+
+def DecryptPasswd(password):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    return cifrar.decrypt(password).split()[0]

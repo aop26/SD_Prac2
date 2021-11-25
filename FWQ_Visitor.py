@@ -303,7 +303,7 @@ while(op != 4):
                             atrVisitadas.append(atraccionSeleccionada)
                             atraccionSeleccionada = -1
                             print("waiting")
-                            
+
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride)):
                             move = [move[0], 0] # si encuentra una atraccion que no es a la que va, la esquiva
                             if(not(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Visitor))):
@@ -313,6 +313,7 @@ while(op != 4):
                                 visitor.Move(move)
                                 engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
                             # else: si es un visitor se espera. 
+                        
                         m = cu.getMap(addrEng,done)
                         if(m==-1):
                             hecho=True
