@@ -85,6 +85,7 @@ class WaitingTimeThread(threading.Thread):
                     waitTime = int(i.split(":")[1])
                     pos, wtc, mp = cu.leerAtr(id)
                     ride = Ride(pos[0],pos[1],waitTime)
+                    ride.connected=False
                     mapaActualizado[pos[0]][pos[1]]= ride
                 mapaEngine.Update(mapaActualizado)
             except Exception as e:

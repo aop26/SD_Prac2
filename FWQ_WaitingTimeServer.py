@@ -31,8 +31,13 @@ class kafkaConsumerThread(threading.Thread):
             #if(visitors%atrMaxVisitors!=0):
             #    updateValue +=1
             updateValue*=atrWaitTime
-            dictAtracciones.update({id:updateValue})
-            print(dictAtracciones)
+            dictAtracciones.update({id:(updateValue, time.time())})
+            #print(dictAtracciones)
+
+            for atr in dictAtracciones:
+                if(atr[1]!=-1 and time.time()-atr[1] > 5):
+                    atr[1] = -1
+
         sensorReader.close()
     def stop():
         cu.stopAll()
