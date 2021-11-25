@@ -10,7 +10,7 @@ import atexit
 from mapa import *
 from Ride import *
 from Visitor import *
-
+from uuid import uuid4
 global mapaEngine
 nexit = True
 mapaEngine = Mapa(cu.mapaVacio())
@@ -25,22 +25,23 @@ class VisitorMovementThread(threading.Thread):
         global nexit
         global visitantes
         visitorReader = cu.kc(self.addr,'movements')
+        visitorAnswerer = cu.kp(self.addr)
         while(nexit):
             global mapaActualizado
             msg = next(visitorReader)
-            message = str(msg.value).replace('b','').replace("'",'')
+            message = str(msg.value).replace("b'",'').replace("'",'')
             action = message.split('-')[0]
             data = message.split('-')[1]
             #print(data)
             if(action=="join"):
-                if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
-                    visitantes[data]="NO"
-                    print(data," tried to log in!")
+                if((data not in visitantes or visitantes[data]=="420")  and len(visitantes)>int(sys.argv[2])):
+                    visitantes[data]="420"
+                    print(data," no cabe en el parque!")
                     #kafkaProducer = cu.kp(self.addr)
                     #kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
                     #kafkaProducer.close()
                 else:
-                    visitantes[data]=[0,0]
+                    visitantes[data]=[0,0,time.time()]
                     print(data," logged in!")
                     #mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
                     ##cu.sendMap(self.addr,mapaActualizado,data)
@@ -97,7 +98,7 @@ class WaitingTimeThread(threading.Thread):
         nexit = False
         quit()
 
-class MapThread(threading.Thread):
+'''class MapThread(threading.Thread):
     def __init__(self,puerto):
         threading.Thread.__init__(self)
         self.name = "FWQ_WaitingTimeServer server"
@@ -126,7 +127,7 @@ class MapThread(threading.Thread):
             clientSocket.close()
         self.s.close()
     def closeConnection(self):
-        self.s.close()
+        self.s.close()'''
 
 
 #Lectura y comprobación de argumentos

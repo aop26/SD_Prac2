@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import customutils as cu
 #con = cu.openDB()
 #cur = con.cursor()
@@ -17,3 +18,5 @@ txt = "JAJAXDLOL"
 cifrado = cu.EncryptPasswd(txt)
 print(cifrado)
 print(cu.DecryptPasswd(cifrado))
+=======
+>>>>>>> d74bb2b66cbe2400c966c4a3527f0745316c124d
