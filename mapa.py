@@ -40,12 +40,18 @@ class Mapa:
             self.mapa = newMapa + []
 
 
-    def DrawMapa(self):
+    def DrawMapa(self, debug=False):
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT: 
                 pygame.quit()
                 return True
-
+            if debug:
+                if evento.type == pygame.KEYDOWN:
+                    if evento.key == pygame.K_k:
+                        for i in range(20):
+                            for j in range(20):
+                                if(isinstance(self.mapa[i][j], Ride)):
+                                    self.mapa[i][j].connected = not self.mapa[i][j].connected 
         self.pantalla.fill(BLANCO)
 
 
@@ -88,6 +94,13 @@ class Mapa:
                     x = i*self.tamCelda + 5
                     y = j*self.tamCelda + 5
                     self.pantalla.blit(txt, [x, y])
+
+                    if(not self.mapa[i][j].connected):
+                        x = i*self.tamCelda
+                        y = j*self.tamCelda
+                        pygame.draw.line(self.pantalla, ROJO, [x+3, y+3], [x+self.tamCelda-1, y+self.tamCelda-1], 5)
+                        pygame.draw.line(self.pantalla, ROJO, [x+self.tamCelda-1, y+3], [x+3, y+self.tamCelda-1], 5)
+
                 elif(isinstance(self.mapa[i][j], Visitor)):
                     vI=pygame.image.load(f"img/{self.mapa[i][j].id}").convert()
                     vI=pygame.transform.scale(vI,[int(self.tamCelda), int(self.tamCelda)])   
@@ -115,17 +128,19 @@ if(__name__ == "__main__"):
     v4 = Visitor(16)
     v5 = Visitor(43)
 
+
     mapa = [ [0 for j in range(20)] for i in range(20)]
     mapa[0][0] = v1
     mapa[4][3] = v2
     mapa[2][1] = v3
     mapa[4][1] = v4
     mapa[19][19] = v5
+    mapa[10][10] = Ride(10, 10, 10)
 
     mapa = Mapa(mapa)
     hecho = False
     while not hecho:
-        hecho = mapa.DrawMapa()
+        hecho = mapa.DrawMapa(True)
 
 
     pygame.quit()

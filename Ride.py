@@ -3,5 +3,5 @@ class Ride:
         self.x = x
         self.y = y
         self.waitingTime = wT
-
+        self.connected = True
         

@@ -6,6 +6,7 @@ class Visitor:
         self.y = 1
         self.timer = 0
         self.wait = 0
+        
     
     def Move(self, move):
         if(0 <= self.x+move[0] < 20):

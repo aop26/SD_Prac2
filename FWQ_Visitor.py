@@ -263,6 +263,7 @@ while(op != 4):
                         for j in range(20):
                             if(isinstance(m[j][i], Ride)): # si es una atraccion
                                 atracciones.append(m[j][i])
+
                     if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
                     atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
                         atraccionSeleccionada = -1
@@ -296,11 +297,13 @@ while(op != 4):
                             visitor.Move(move)
                             engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
                             print(visitor.x, visitor.y)
+
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
                             visitor.wait = 3*60 # espera 3 segundos
                             atrVisitadas.append(atraccionSeleccionada)
                             atraccionSeleccionada = -1
                             print("waiting")
+                            
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride)):
                             move = [move[0], 0] # si encuentra una atraccion que no es a la que va, la esquiva
                             if(not(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Visitor))):
