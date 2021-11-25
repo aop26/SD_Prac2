@@ -343,13 +343,3 @@ while(op != 4):
     else:
         print("Opcion incorrecta.")
         
-
-
-
-
-
-
-
-
-
-# pito
