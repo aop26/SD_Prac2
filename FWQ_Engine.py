@@ -1,6 +1,9 @@
 #!/usr/bin/python3
 # http://api.openweathermap.org/data/2.5/weather?q=London&appid=7ddf5f17f4f465a8a99e5c7937855976
 # http://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={api key}
+# tiempo = requests.get("http://api.openweathermap.org/data/2.5/weather?q=London&appid=7ddf5f17f4f465a8a99e5c7937855976")
+# print(tiempo.json()["main"]["temp"])
+
 
 from re import split
 import sys
