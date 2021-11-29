@@ -55,6 +55,7 @@ class VisitorMovementThread(threading.Thread):
                 posy=int(data.split(',')[1])
                 visitantes[token] = [posx,posy]
                 mapaActualizado[posx][posy]=Visitor(int(data.split(',')[2]))
+                visitorAnswerer.send('engineres',str(str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
                 ##cu.sendMap(self.addr,mapaActualizado,name)
             elif(action=="exit"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
