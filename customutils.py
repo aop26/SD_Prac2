@@ -298,6 +298,18 @@ def GetKey():
 
 
 
+# ENCRIPTACION / HASHES
+
+def HashPassword(password):
+    hash = SHA256.new()
+    hash.update(password.encode("utf-8"))
+    return str(hash.digest())
+
+
+
+'''
+
+creo que me mamé con esto xd
 
 def EncryptPasswd(password):
     cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
@@ -308,4 +320,4 @@ def EncryptPasswd(password):
 
 def DecryptPasswd(password):
     cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
-    return cifrar.decrypt(password).split()[0]
+    return cifrar.decrypt(password).split()[0]'''

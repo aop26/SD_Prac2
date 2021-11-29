@@ -108,26 +108,26 @@ while(op != 4):
     if(op == 1):
         # se conecta a registry
 
-        obj = socket.socket()
+        #obj = socket.socket()
         #print(addrReg)
-        obj.connect((addrReg[0], addrReg[1]))
-        obj.send("c".encode('utf-8'))
+        #obj.connect((addrReg[0], addrReg[1]))
+        #obj.send("c".encode('utf-8'))
 
         done = False
         while(not done):
             name = input("Escribe tu nombre: ")
             password = input("Escribe tu contraseña: ")
             txt = name + "//" + cu.HashPassword(password)
-            obj.send(txt.encode('utf-8'))
+            #obj.send(txt.encode('utf-8'))
             #system("clear")
 
-            respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-            print(respuesta)
+            #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+            #print(respuesta)
 
-            if(done == "1"):
-                done = True
-                obj.send("FIN".encode('utf-8'))
-                obj.close()
+            #if(done == "1"):
+                #done = True
+                #obj.send("FIN".encode('utf-8'))
+                #obj.close()
         
 
 
@@ -137,23 +137,23 @@ while(op != 4):
 
         # hay que ver como iniciar sesion.
         sesionIniciada = False
-        obj = socket.socket()
-        obj.connect((addrReg[0], addrReg[1]))
-        obj.send("l".encode('utf-8'))
+        #obj = socket.socket()
+        #obj.connect((addrReg[0], addrReg[1]))
+        #obj.send("l".encode('utf-8'))
 
         name = input("Escribe tu nombre: ")
         password = input("Escribe tu contraseña: ")
         txt = name + "//" + cu.HashPassword(password)
-        obj.send(txt.encode('utf-8'))
+        #obj.send(txt.encode('utf-8'))
 
         #system("clear")
 
-        respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-        print(respuesta)
-        if(done != "-1"):
-            sesionIniciada = True
+        #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+        #print(respuesta)
+        #if(done != "-1"):
+            #sesionIniciada = True
 
-        obj.send("m".encode("utf-8"))
+        #obj.send("m".encode("utf-8"))
 
         while(sesionIniciada):
             
@@ -169,13 +169,13 @@ while(op != 4):
                 password = input("Escribe tu contraseña: ")
             elif(editOp == "g"):
                 txt = name + "//" + cu.HashPassword(password)
-                obj.send(txt.encode('utf-8'))
+                #obj.send(txt.encode('utf-8'))
                 #system("clear")
 
-                respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-                print(respuesta)
-                obj.send("FIN".encode('utf-8'))
-                obj.close()
+                #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+                #print(respuesta)
+                #obj.send("FIN".encode('utf-8'))
+                #obj.close()
                 break
 
             elif(editOp == "q"):
@@ -189,28 +189,28 @@ while(op != 4):
     elif(op == 3):
 
         sesionIniciada = False
-        obj = socket.socket()
-        obj.connect((addrReg[0], addrReg[1]))
-        obj.send("l".encode('utf-8'))
+        #obj = socket.socket()
+        #obj.connect((addrReg[0], addrReg[1]))
+        #obj.send("l".encode('utf-8'))
 
         name = input("Escribe tu nombre: ")
         password = input("Escribe tu contraseña: ")
         txt = name + "//" + cu.HashPassword(password)
-        obj.send(txt.encode('utf-8'))
+        #obj.send(txt.encode('utf-8'))
         
         #system("clear")
 
-        respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-        print(respuesta)
-        if(done != "-1"):
-            sesionIniciada = True
-        obj.send("FIN".encode('utf-8'))
-        obj.close()
+        #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
+        #print(respuesta)
+        #if(done != "-1"):
+        #    sesionIniciada = True
+        #obj.send("FIN".encode('utf-8'))
+        #obj.close()
         
 
-        engineCon = cu.kp(sys.argv[2])
+        #engineCon = cu.kp(sys.argv[2])
         #print(respuesta)
-        engineCon.send('movements',('join-'+done).encode('utf-8'))
+        #engineCon.send('movements',('join-'+done).encode('utf-8'))
         #updateMapThread = MapUpdateThread(addrEng)
         #updateMapThread.start()
         #m = False
@@ -344,3 +344,4 @@ while(op != 4):
     else:
         print("Opcion incorrecta.")
         
+
