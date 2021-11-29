@@ -291,16 +291,9 @@ def mapaVacio():
     return mapaActualizado
 
 
-# http://api.openweathermap.org/data/2.5/weather?q=London&appid=7ddf5f17f4f465a8a99e5c7937855976
-# http://api.openweathermap.org/data/2.5/weather?q={ciudad}&appid={api key}
-# tiempo = requests.get("http://api.openweathermap.org/data/2.5/weather?q=London&appid=7ddf5f17f4f465a8a99e5c7937855976")
-# print(tiempo.json()["main"]["temp"])
-
 def GetWeather():
     weather = []
-
     file = open("cities.txt", "r")
-
     url = file.readline().split()
     apiKey = file.readline().split()[0]
     for i in range(4):
@@ -308,11 +301,8 @@ def GetWeather():
             city = file.readline().split()[0]
             tiempo = requests.get(url[0]+city+url[1]+apiKey)
             weather.append([city, round(tiempo.json()["main"]["temp"]-273, 2)]) # t-273 porque esta en kelvin y queremos celsius
-
         except:
             weather.append(["error", -1])
-    
-
     return weather
 
 # ENCRIPTACION / HASHES
