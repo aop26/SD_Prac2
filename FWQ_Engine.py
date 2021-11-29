@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+c#!/usr/bin/python3
 
 from re import split
 import sys
@@ -131,10 +131,10 @@ class WaitingTimeThread(threading.Thread):
 
 
 #Lectura y comprobación de argumentos
-cu.uso = "FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)] [puerto]"
+cu.uso = "FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)]"
 
 
-if len(sys.argv) != 5:
+if len(sys.argv) != 4:
     print("Número erróneo de argumentos.")
     cu.printUso()
 
@@ -149,17 +149,17 @@ except:
 
 addressWTS = cu.checkIP(sys.argv[3],"FWQ_WaitingTimeServer")
 
-puerto = 0
-try:
-    puerto = int(sys.argv[4])
-except:
-    print("El puerto no es un número")
-    cu.printUso()
+# puerto = 0
+# try:
+#     puerto = int(sys.argv[4])
+# except:
+#     print("El puerto no es un número")
+#     cu.printUso()
 
 
 waitTime = WaitingTimeThread(addressWTS)
 visitorMove = VisitorMovementThread(sys.argv[1])
-mapSender = MapThread(puerto)
+#mapSender = MapThread(puerto)
 
 def exit_handler():
     print("stopping")
@@ -167,13 +167,13 @@ def exit_handler():
     nexit = False
     cu.stopAll()
     waitTime.stop()
-    visitorMove.stop()
+    #visitorMove.stop()
     # cerrar cosas
 atexit.register(exit_handler)
 
 waitTime.start()
 visitorMove.start()
-mapSender.start()
+#mapSender.start()
 
 hecho = False
 print("Iniciados threads del servidor de tiempos de espera y del consumidor kafka")
