@@ -19,6 +19,7 @@ from random import randrange
 import socket 
 import atexit
 
+
 HOST = 'localhost'
 PORT = 5050
 obj = ""
@@ -116,7 +117,7 @@ while(op != 4):
         while(not done):
             name = input("Escribe tu nombre: ")
             password = input("Escribe tu contraseña: ")
-            txt = name + "//" + password
+            txt = name + "//" + cu.HashPassword(password)
             obj.send(txt.encode('utf-8'))
             #system("clear")
 
@@ -142,7 +143,7 @@ while(op != 4):
 
         name = input("Escribe tu nombre: ")
         password = input("Escribe tu contraseña: ")
-        txt = name + "//" + password
+        txt = name + "//" + cu.HashPassword(password)
         obj.send(txt.encode('utf-8'))
 
         #system("clear")
@@ -167,7 +168,7 @@ while(op != 4):
             elif(editOp == "c"):
                 password = input("Escribe tu contraseña: ")
             elif(editOp == "g"):
-                txt = name + "//" + password
+                txt = name + "//" + cu.HashPassword(password)
                 obj.send(txt.encode('utf-8'))
                 #system("clear")
 
@@ -194,7 +195,7 @@ while(op != 4):
 
         name = input("Escribe tu nombre: ")
         password = input("Escribe tu contraseña: ")
-        txt = name + "//" + password
+        txt = name + "//" + cu.HashPassword(password)
         obj.send(txt.encode('utf-8'))
         
         #system("clear")
