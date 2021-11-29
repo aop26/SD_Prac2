@@ -1,4 +1,4 @@
-c#!/usr/bin/python3
+#!/usr/bin/python3
 
 from re import split
 import sys
@@ -34,23 +34,26 @@ class VisitorMovementThread(threading.Thread):
             data = message.split('-')[1]
             #print(data)
             if(action=="join"):
-                if((data not in visitantes or visitantes[data]=="420")  and len(visitantes)>int(sys.argv[2])):
-                    visitantes[data]="420"
+                if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
+                    visitantes[data]="NO"
+                    visitorAnswerer.send('engineres',str(str(data)+'-NO').encode('utf-8'))
                     print(data," no cabe en el parque!")
                     #kafkaProducer = cu.kp(self.addr)
                     #kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
                     #kafkaProducer.close()
                 else:
-                    visitantes[data]=[0,0,time.time()]
-                    print(data," logged in!")
+                    token = uuid4()
+                    visitantes[token]=[0,0,time.time()]
+                    visitorAnswerer.send('engineres',str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
+                    print(data," ha iniciado sesión!")
                     #mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
                     ##cu.sendMap(self.addr,mapaActualizado,data)
             elif(action=="move" and data.split(',')[3] in visitantes and visitantes[data.split(',')[3]]!="NO"):
-                name = data.split(',')[3]
-                mapaActualizado[visitantes[name][0]][visitantes[name][1]]=0
+                token = data.split(',')[3]
+                mapaActualizado[visitantes[token][0]][visitantes[token][1]]=0
                 posx=int(data.split(',')[0])
                 posy=int(data.split(',')[1])
-                visitantes[name] = [posx,posy]
+                visitantes[token] = [posx,posy]
                 mapaActualizado[posx][posy]=Visitor(int(data.split(',')[2]))
                 ##cu.sendMap(self.addr,mapaActualizado,name)
             elif(action=="exit"):
