@@ -75,7 +75,7 @@ function GetKey(){
 // hay que modificar los metodos para que lea de nuestra base de datos
 
 // la string random esta 
-appSD.get("/:name/:password",(request, response) => {
+app.get("/:name/:password",(request, response) => {
 
 	const key = GetKey();
 	const name = CryptoJS.AES.decrypt(request.body.name, key);
@@ -94,7 +94,7 @@ appSD.get("/:name/:password",(request, response) => {
 });
 
 
-appSD.post("/",(request, response) => {
+app.post("/",(request, response) => {
 	const key = GetKey();
 	const name = CryptoJS.AES.decrypt(request.body.name, key);
 	const passwd = CryptoJS.AES.decrypt(request.body.password, key);
@@ -113,7 +113,7 @@ appSD.post("/",(request, response) => {
 });
 
 
-appSD.put("/:id",(request, response) => {
+app.put("/:id",(request, response) => {
 	const key = GetKey();
 	const name = CryptoJS.AES.decrypt(request.body.name, key);
 	const passwd = CryptoJS.AES.decrypt(request.body.password, key);
@@ -128,12 +128,12 @@ appSD.put("/:id",(request, response) => {
 });
 
 
-appSD.delete("/:id",(request, response) => {
+app.delete("/:id",(request, response) => {
 	const key = GetKey();
 	const id = CryptoJS.AES.decrypt(request.body.id, key);
 
 
-	const {id} = request.params;
+	//const {id} = request.params;
 	sql = `DELETE FROM Usuarios WHERE idUsuario= ${id}`;
 	connection.query(sql,error => {
 	if (error) throw error;
