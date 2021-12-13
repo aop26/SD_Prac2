@@ -33,26 +33,73 @@ if (error) throw error;
 
 
 
+
+// Funciones para encriptar y desencriptar
+// var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
+// var decrypted = CryptoJS.AES.decrypt(encrypted, "Secret Passphrase");
+
+
+function GetKey(){
+	var key = "";
+
+	const readline = require("readline"),
+		fs = require("fs"),
+		NOMBRE_ARCHIVO = "clave";
+	
+	let lector = readline.createInterface({
+		input: fs.createReadStream(NOMBRE_ARCHIVO)
+	});
+
+	lector.on("line", linea => {
+		key = linea; //console.log("Tenemos una línea:", linea);
+	});
+
+	return key;
+}
+
+
+
+
+// FORMATO REQUEST
+// name
+// password
+// id
+// x
+// y
+// ya esta?
+
+
+
+
 // -- CRUD --
 // hay que modificar los metodos para que lea de nuestra base de datos
-appSD.get("/usuarios",(request, response) => {
 
-	
+// la string random esta 
+appSD.get("/:name/:password",(request, response) => {
 
-	console.log('Listado de todos los usuarios');
-	const sql = 'SELECT * FROM Usuarios';
+	const key = GetKey();
+	const name = CryptoJS.AES.decrypt(request.body.name, key);
+	const passwd = CryptoJS.AES.decrypt(request.body.password, key);
+
+	const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
+
 	connection.query(sql,(error,resultado)=>{
 		if (error) throw error;
 		if (resultado.length > 0){
-			response.json(resultado);
+			response.send(); //response.json(resultado);
 		} else {
 			response.send('No hay resultados');
 		}
 	});
 });
 
-appSD.post("/usuarios",(request, response) => {
-	console.log('Añadir nuevo usuario');
+
+appSD.post("/",(request, response) => {
+	const key = GetKey();
+	const name = CryptoJS.AES.decrypt(request.body.name, key);
+	const passwd = CryptoJS.AES.decrypt(request.body.password, key);
+
+
 	const sql = 'INSERT INTO Usuarios SET ?';
 	const usuarioObj = {
 		nombre: request.body.nombre,
@@ -65,20 +112,27 @@ appSD.post("/usuarios",(request, response) => {
 	});
 });
 
-appSD.put("/usuarios/:id",(request, response) => {
-	console.log('Modificar usuario');
-	const {id} = request.params;
-	const {nombre,ciudad,correo} = request.body;
-	const sql = `UPDATE Usuarios SET nombre='${nombre}', ciudad='${ciudad}',
-	correo='${correo}' WHERE idUsuario=${id}`;
+
+appSD.put("/:id",(request, response) => {
+	const key = GetKey();
+	const name = CryptoJS.AES.decrypt(request.body.name, key);
+	const passwd = CryptoJS.AES.decrypt(request.body.password, key);
+	const id = CryptoJS.AES.decrypt(request.body.id, key);
+
+	const sql = `UPDATE Usuarios SET nombre='${name}', password.='${passwd}' WHERE idUsuario=${id}`;
+
 	connection.query(sql,error => {
 	if (error) throw error;
 		response.send('Usuario modificado');
 	});
 });
 
-appSD.delete("/usuarios/:id",(request, response) => {
-	console.log('Borrar usuario');
+
+appSD.delete("/:id",(request, response) => {
+	const key = GetKey();
+	const id = CryptoJS.AES.decrypt(request.body.id, key);
+
+
 	const {id} = request.params;
 	sql = `DELETE FROM Usuarios WHERE idUsuario= ${id}`;
 	connection.query(sql,error => {
