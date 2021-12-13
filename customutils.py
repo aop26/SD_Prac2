@@ -7,8 +7,8 @@ from kafka.admin import KafkaAdminClient,NewTopic
 from os.path import exists
 import os
 import sqlite3
-#from Crypto.Cipher import AES 
-#from Crypto.Hash import SHA256 
+from Crypto.Cipher import AES 
+from Crypto.Hash import SHA256 
 import requests
 from kafka.producer.kafka import KafkaProducer
 from Ride import *
@@ -291,7 +291,7 @@ def mapaVacio():
     return mapaActualizado
 
 
-def GetWeather():
+def GetWeather(data):
     weather = []
     file = open("cities.txt", "r")
     url = file.readline().split()
@@ -299,11 +299,21 @@ def GetWeather():
     for i in range(4):
         try:
             city = file.readline().split()[0]
-            tiempo = requests.get(url[0]+city+url[1]+apiKey)
-            weather.append([city, round(tiempo.json()["main"]["temp"]-273, 2)]) # t-273 porque esta en kelvin y queremos celsius
+            pos = -1
+            for i in range(len(data)):
+                if(city in data[i]):
+                    pos = i
+                    break
+
+            if(pos == -1):
+                tiempo = requests.get(url[0]+city+url[1]+apiKey)
+                weather.append([city, round(tiempo.json()["main"]["temp"]-273, 2)]) # t-273 porque esta en kelvin y queremos celsius
+            else:
+                weather.append(data[pos])
         except:
             weather.append(["error", -1])
     return weather
+
 
 # ENCRIPTACION / HASHES
 

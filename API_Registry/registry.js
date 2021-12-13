@@ -34,28 +34,33 @@ if (error) throw error;
 
 
 
+
+
+// Andres fuma porros y esto tal vez no hace falta
+
+
 // Funciones para encriptar y desencriptar
 // var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
 // var decrypted = CryptoJS.AES.decrypt(encrypted, "Secret Passphrase");
 
 
-function GetKey(){
-	var key = "";
-
-	const readline = require("readline"),
-		fs = require("fs"),
-		NOMBRE_ARCHIVO = "clave";
-	
-	let lector = readline.createInterface({
-		input: fs.createReadStream(NOMBRE_ARCHIVO)
-	});
-
-	lector.on("line", linea => {
-		key = linea; //console.log("Tenemos una línea:", linea);
-	});
-
-	return key;
-}
+//function GetKey(){
+//	var key = "";
+//
+//	const readline = require("readline"),
+//		fs = require("fs"),
+//		NOMBRE_ARCHIVO = "clave";
+//	
+//	let lector = readline.createInterface({
+//		input: fs.createReadStream(NOMBRE_ARCHIVO)
+//	});
+//
+//	lector.on("line", linea => {
+//		key = linea; //console.log("Tenemos una línea:", linea);
+//	});
+//
+//	return key;
+//}
 
 
 
