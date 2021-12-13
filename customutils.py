@@ -7,8 +7,8 @@ from kafka.admin import KafkaAdminClient,NewTopic
 from os.path import exists
 import os
 import sqlite3
-from Crypto.Cipher import AES 
-from Crypto.Hash import SHA256 
+#from Crypto.Cipher import AES 
+#from Crypto.Hash import SHA256 
 import requests
 from kafka.producer.kafka import KafkaProducer
 from Ride import *
