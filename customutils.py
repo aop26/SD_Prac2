@@ -320,6 +320,19 @@ def GetKey():
     return key
 
 
+def EncryptText(txt):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    while(len(txt)%16 != 0):
+        txt += " "
+    return cifrar.encrypt(txt)
+
+
+def DecryptText(text):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    return cifrar.decrypt(text).split()[0]
+
+
+
 
 '''
 Esto hay que adaptarlo para el api rest

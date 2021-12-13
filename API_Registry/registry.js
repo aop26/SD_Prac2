@@ -36,6 +36,9 @@ if (error) throw error;
 // -- CRUD --
 // hay que modificar los metodos para que lea de nuestra base de datos
 appSD.get("/usuarios",(request, response) => {
+
+	
+
 	console.log('Listado de todos los usuarios');
 	const sql = 'SELECT * FROM Usuarios';
 	connection.query(sql,(error,resultado)=>{
@@ -83,3 +86,5 @@ appSD.delete("/usuarios/:id",(request, response) => {
 		response.send('Usuario borrado');
 	});
 });
+
+
