@@ -16,6 +16,7 @@ nexit = True
 mapaEngine = Mapa(cu.mapaVacio())
 mapaActualizado = cu.mapaVacio()
 visitantes = {}
+
 class VisitorMovementThread(threading.Thread):
     def __init__(self, addr):
         threading.Thread.__init__(self)
@@ -36,7 +37,8 @@ class VisitorMovementThread(threading.Thread):
             if(action=="join"):
                 if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
                     visitantes[data]="NO"
-                    visitorAnswerer.send('engineres',str(str(data)+'-NO').encode('utf-8'))
+                    txt = cu.EncryptText(str(str(data)+'-NO'))
+                    visitorAnswerer.send('engineres',txt.encode('utf-8'))
                     print(data," no cabe en el parque!")
                     #kafkaProducer = cu.kp(self.addr)
                     #kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
@@ -44,7 +46,8 @@ class VisitorMovementThread(threading.Thread):
                 else:
                     token = uuid4()
                     visitantes[token]=[0,0,time.time()]
-                    visitorAnswerer.send('engineres',str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
+                    txt = cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
+                    visitorAnswerer.send('engineres',txt.encode('utf-8'))
                     print(data," ha iniciado sesión!")
                     #mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
                     ##cu.sendMap(self.addr,mapaActualizado,data)
