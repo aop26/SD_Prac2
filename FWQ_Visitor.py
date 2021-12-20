@@ -209,8 +209,21 @@ while(op != 4):
         
 
         engineCon = cu.kp(sys.argv[2])
+        mapConsumer = cu.kc(sys.argv[2])
         #print(respuesta)
         engineCon.send('movements',('join-'+done).encode('utf-8'))
+        token = None
+        m = -1
+        while(not token):
+            msg = next(mapConsumer)
+            message = str(msg.value).replace("b'",'').replace("'",'')
+            namet=message.split('-')[0]
+            if(namet == name):
+                token = message.split('-')[1]
+                if(token !="NO"):
+                    m = cu.strToMap(message.split('-')[2])
+
+        
         #updateMapThread = MapUpdateThread(addrEng)
         #updateMapThread.start()
         #m = False
@@ -218,9 +231,9 @@ while(op != 4):
         #    print("Waiting for engine")
         #    sleep(1)
         #m = cu.getMap(sys.argv[2],name)
-        m=-1
-        while(m==-1):
-            m = cu.getMap(addrEng,done)
+        # m=-1
+        # while(m==-1):
+        #     m = cu.getMap(addrEng,done)
         if(m!=-1):
             def exit_handler():
                 global nexit
@@ -314,7 +327,15 @@ while(op != 4):
                                 visitor.Move(move)
                                 engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
                             # else: si es un visitor se espera. 
-                        
+                        mapWhile = True
+                        while(mapWhile):
+                            msg = next(mapConsumer)
+                            message = str(msg.value).replace("b'",'').replace("'",'')
+                            tokent=message.split('-')[0]
+                            if(tokent == token):
+                                token = message.split('-')[1]
+                                if(token !="NO"):
+                                    m = cu.strToMap(message.split('-')[2])
                         m = cu.getMap(addrEng,done)
                         if(m==-1):
                             hecho=True
