@@ -1,0 +1,6 @@
+http://api.openweathermap.org/data/2.5/weather?q= &appid= 
+7ddf5f17f4f465a8a99e5c7937855976
+London
+Madrid
+Paris
+Rome

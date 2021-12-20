@@ -8,7 +8,8 @@ from os.path import exists
 import os
 import sqlite3
 from Crypto.Cipher import AES 
-
+from Crypto.Hash import SHA256 
+import requests
 from kafka.producer.kafka import KafkaProducer
 from Ride import *
 from Visitor import *
@@ -290,12 +291,28 @@ def mapaVacio():
     return mapaActualizado
 
 
-def GetKey():
-    file = open("clave", "r")
-    key = file.readline()
-    file.close()
-    return key
+def GetWeather(data):
+    weather = []
+    file = open("cities.txt", "r")
+    url = file.readline().split()
+    apiKey = file.readline().split()[0]
+    for i in range(4):
+        try:
+            city = file.readline().split()[0]
+            pos = -1
+            for i in range(len(data)):
+                if(city in data[i]):
+                    pos = i
+                    break
 
+            if(pos == -1):
+                tiempo = requests.get(url[0]+city+url[1]+apiKey)
+                weather.append([city, round(tiempo.json()["main"]["temp"]-273, 2)]) # t-273 porque esta en kelvin y queremos celsius
+            else:
+                weather.append(data[pos])
+        except:
+            weather.append(["error", -1])
+    return weather
 
 
 # ENCRIPTACION / HASHES
@@ -306,10 +323,29 @@ def HashPassword(password):
     return str(hash.digest())
 
 
+def GetKey():
+    file = open("clave", "r")
+    key = file.readline()
+    file.close()
+    return key
+
+
+def EncryptText(txt):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    while(len(txt)%16 != 0):
+        txt += " "
+    return cifrar.encrypt(txt)
+
+
+def DecryptText(text):
+    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
+    return cifrar.decrypt(text).split()[0]
+
+
+
 
 '''
-
-creo que me mamé con esto xd
+Esto hay que adaptarlo para el api rest
 
 def EncryptPasswd(password):
     cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')

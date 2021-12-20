@@ -12,6 +12,7 @@ from kafka import KafkaConsumer, consumer
 
 exit = False
 dictAtracciones = {}
+tiemposAtracciones = {}
 class kafkaConsumerThread(threading.Thread):
     def __init__(self,ipaddr):
         threading.Thread.__init__(self)
@@ -30,13 +31,15 @@ class kafkaConsumerThread(threading.Thread):
             updateValue = visitors//atrMaxVisitors
             #if(visitors%atrMaxVisitors!=0):
             #    updateValue +=1
-            updateValue*=atrWaitTime
-            dictAtracciones.update({id:(updateValue, time.time())})
-            #print(dictAtracciones)
+            updateValue+=atrWaitTime
 
-            for atr in dictAtracciones:
-                if(atr[1]!=-1 and time.time()-atr[1] > 5):
-                    atr[1] = -1
+            dictAtracciones.update({id:updateValue})
+            tiemposAtracciones.update({id: time.time()})
+
+            for atr in tiemposAtracciones:
+                if(dictAtracciones[atr]!=-1 
+                and time.time()-tiemposAtracciones[atr] > 5):
+                    dictAtracciones[atr] = -1
 
         sensorReader.close()
     def stop():
