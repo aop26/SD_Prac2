@@ -18,6 +18,7 @@ from os import system
 from random import randrange
 import socket 
 import atexit
+import requests
 
 
 HOST = 'localhost'
@@ -108,16 +109,13 @@ while(op != 4):
     if(op == 1):
         # se conecta a registry
 
-        #obj = socket.socket()
-        #print(addrReg)
-        #obj.connect((addrReg[0], addrReg[1]))
-        #obj.send("c".encode('utf-8'))
-
         done = False
         while(not done):
             name = input("Escribe tu nombre: ")
             password = input("Escribe tu contraseña: ")
             txt = name + "//" + cu.HashPassword(password)
+
+            response = requests.put()
             #obj.send(txt.encode('utf-8'))
             #system("clear")
 

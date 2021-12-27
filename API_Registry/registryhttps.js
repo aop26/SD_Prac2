@@ -48,16 +48,9 @@ mrouter.map(function(){
 
 
 
-
-
-	// Andres fuma porros y esto tal vez no hace falta
-
-
 	// Funciones para encriptar y desencriptar
 	// var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
 	// var decrypted = CryptoJS.AES.decrypt(encrypted, "Secret Passphrase");
-
-
 	//function GetKey(){
 	//	var key = "";
 	//
@@ -94,23 +87,23 @@ mrouter.map(function(){
 	// hay que modificar los metodos para que lea de nuestra base de datos
 
 	// la string random esta 
-	/*this.get("/:name/:password",(request, response) => {
+	this.get("/usuario/:name",(request, response) => {
 
-		const key = GetKey();
-		const name = CryptoJS.AES.decrypt(request.body.name, key);
-		const passwd = CryptoJS.AES.decrypt(request.body.password, key);
-
-		const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
-
-		connection.query(sql,(error,resultado)=>{
-			if (error) throw error;
-			if (resultado.length > 0){
-				response.send(); //response.json(resultado);
-			} else {
-				response.send('No hay resultados');
-			}
-		});
-	});*/
+		//const key = GetKey();
+		//const name = CryptoJS.AES.decrypt(request.body.name, key);
+		//const passwd = CryptoJS.AES.decrypt(request.body.password, key);
+//
+		//const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
+		console.log(`Llamada a GET`);
+		//connection.query(sql,(error,resultado)=>{
+		//	if (error) throw error;
+		//	if (resultado.length > 0){
+		//		response.send(); //response.json(resultado);
+		//	} else {
+		//		response.send('No hay resultados');
+		//	}
+		//});
+	});
 
 
 	/*this.post("/",(request, response) => {
