@@ -1,5 +1,6 @@
 #!/usr/bin/python3
 
+import re
 from selectors import PollSelector
 import threading
 import time
@@ -107,51 +108,36 @@ while(op != 4):
 
 
     if(op == 1):
-        # se conecta a registry
+        # CREAR CUENTA
 
         done = False
         while(not done):
             name = input("Escribe tu nombre: ")
-            password = input("Escribe tu contraseña: ")
-            txt = name + "//" + cu.HashPassword(password)
+            password = cu.HashPassword(input("Escribe tu contraseña: "))
 
-            response = requests.put()
-            #obj.send(txt.encode('utf-8'))
-            #system("clear")
+            response = requests.post("mmmmmmmmmmmmmm") # envia usuario y cntr, si se crea la cuenta, se comunica por response
 
-            #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-            #print(respuesta)
-
-            #if(done == "1"):
-                #done = True
-                #obj.send("FIN".encode('utf-8'))
-                #obj.close()
+            #if(respuesta == "1"):
+            #   done = True
+            #else:
+            #   print("Error")
         
 
 
 # =================================================================================================================================================================
  
     elif(op == 2):
+        # EDITAR CUENTA
 
-        # hay que ver como iniciar sesion.
         sesionIniciada = False
-        #obj = socket.socket()
-        #obj.connect((addrReg[0], addrReg[1]))
-        #obj.send("l".encode('utf-8'))
-
         name = input("Escribe tu nombre: ")
-        password = input("Escribe tu contraseña: ")
-        txt = name + "//" + cu.HashPassword(password)
-        #obj.send(txt.encode('utf-8'))
+        password = cu.HashPassword(input("Escribe tu contraseña: "))
 
-        #system("clear")
+        # primero se inicia sesion
+        response = requests.get("mmmmmmmmmmmmmm") # se usa get para ver que devuelva el hash de la cntr 
+        if(response == password):
+            sesionIniciada = True
 
-        #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-        #print(respuesta)
-        #if(done != "-1"):
-            #sesionIniciada = True
-
-        #obj.send("m".encode("utf-8"))
 
         while(sesionIniciada):
             
@@ -159,21 +145,14 @@ while(op != 4):
             print("nombre[n], contraseña[c], guardar[g], cancelar[q]")
 
             editOp = input("Elige una opcion: ")
-            data = ["BLANK", "BLANK"]
-
+   
             if(editOp == "n"):
                 name = input("Escribe tu nombre: ")
             elif(editOp == "c"):
-                password = input("Escribe tu contraseña: ")
+                password = cu.HashPassword(input("Escribe tu contraseña: "))
             elif(editOp == "g"):
-                txt = name + "//" + cu.HashPassword(password)
-                #obj.send(txt.encode('utf-8'))
-                #system("clear")
-
-                #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-                #print(respuesta)
-                #obj.send("FIN".encode('utf-8'))
-                #obj.close()
+                response = requests.put("mmmmmmmmmmmm") # se usa put para actualizar
+                
                 break
 
             elif(editOp == "q"):
@@ -186,25 +165,15 @@ while(op != 4):
     
     elif(op == 3):
 
+        # inicia sesion
         sesionIniciada = False
-        #obj = socket.socket()
-        #obj.connect((addrReg[0], addrReg[1]))
-        #obj.send("l".encode('utf-8'))
-
         name = input("Escribe tu nombre: ")
-        password = input("Escribe tu contraseña: ")
-        txt = name + "//" + cu.HashPassword(password)
-        #obj.send(txt.encode('utf-8'))
-        
-        #system("clear")
+        password = cu.HashPassword(input("Escribe tu contraseña: "))
+        response = requests.get("mmmmmmmmmmmmmm") # se usa get para ver que devuelva el hash de la cntr 
+        if(response == password):
+            sesionIniciada = True
 
-        #respuesta, done = obj.recv(4096).decode(FORMAT).split("//")
-        #print(respuesta)
-        #if(done != "-1"):
-        #    sesionIniciada = True
-        #obj.send("FIN".encode('utf-8'))
-        #obj.close()
-        
+
 
         #engineCon = cu.kp(sys.argv[2])
         #print(respuesta)
