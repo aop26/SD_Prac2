@@ -15,7 +15,7 @@ app.listen(port, () => {
 // -- BASE DE DATOS --
 // falta cambiarlo a sqlite
 
-const mysql = require ("mysql");
+/*const mysql = require ("mysql");
 const bodyParser = require("body-parser");
 	// Configuración de la conexión a la base de datos MySQL
 const connection = mysql.createConnection({
@@ -29,7 +29,7 @@ const connection = mysql.createConnection({
 connection.connect(error=> {
 if (error) throw error;
 	console.log('Conexión a la base de datos SD_MYSQL correcta');
-});
+});*/
 
 
 
