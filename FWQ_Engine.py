@@ -26,45 +26,36 @@ class VisitorMovementThread(threading.Thread):
         global nexit
         global visitantes
         visitorReader = cu.kc(self.addr,'movements')
+        visitorReader.poll(timeout_ms=200)
         visitorAnswerer = cu.kp(self.addr)
         while(nexit):
             global mapaActualizado
             msg = next(visitorReader)
             message = str(msg.value).replace("b'",'').replace("'",'')
-            action = message.split('-')[0]
-            data = message.split('-')[1]
-            #print(data)
+            action = message.split(',')[0]
+            data = message.split(',')[1]
             if(action=="join"):
                 if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
                     visitantes[data]="NO"
-                    txt = cu.EncryptText(str(str(data)+'-NO'))
-                    visitorAnswerer.send('engineres',txt.encode('utf-8'))
+                    #txt = cu.EncryptText(str(str(data)+',NO'))
+                    visitorAnswerer.send('engineres',str(str(data)+',NO').encode('utf-8'))
                     print(data," no cabe en el parque!")
-                    #kafkaProducer = cu.kp(self.addr)
-                    #kafkaProducer.send(topic=data+'_map',value="NO".encode('utf-8'))
-                    #kafkaProducer.close()
                 else:
                     token = uuid4()
-                    visitantes[token]=[0,0,time.time()]
-                    txt = cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
+                    visitantes[str(token)]=[0,0,time.time()]
+                    txt = str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado))#cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
                     visitorAnswerer.send('engineres',txt.encode('utf-8'))
                     print(data," ha iniciado sesión!")
-                    #mapaActualizado[0][0]=0#Visitor(int(data.split(',')[2]))
-                    ##cu.sendMap(self.addr,mapaActualizado,data)
-            elif(action=="move" and data.split(',')[3] in visitantes and visitantes[data.split(',')[3]]!="NO"):
-                token = data.split(',')[3]
-                mapaActualizado[visitantes[token][0]][visitantes[token][1]]=0
-                posx=int(data.split(',')[0])
-                posy=int(data.split(',')[1])
-                visitantes[token] = [posx,posy]
-                mapaActualizado[posx][posy]=Visitor(int(data.split(',')[2]))
+            elif(action=="move" and data in visitantes and visitantes[data]!="NO"):
+                mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
+                posx=int(message.split(',')[2])
+                posy=int(message.split(',')[3])
+                visitantes[data] = [posx,posy]
+                mapaActualizado[posx][posy]=Visitor(int(message.split(',')[4]))
                 visitorAnswerer.send('engineres',str(str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
-                ##cu.sendMap(self.addr,mapaActualizado,name)
-            elif(action=="exit"):
+            elif(action=="exit"and data in visitantes and visitantes[data]!="NO"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
                 visitantes.pop(data)
-            #mapaActualizado = cu.mapaVacio()
-            # recibe movimientos y repsonde enviando el mapa
             mapaEngine.Update(mapaActualizado)
     def stop():
         cu.stopAll()
@@ -77,7 +68,6 @@ class WaitingTimeThread(threading.Thread):
         self.name = "FWQ_EngineWaitingServerConsumer"
 
     def run(self):
-        print("prueba")
         global nexit
         while(nexit):
             global mapaActualizado
@@ -97,45 +87,13 @@ class WaitingTimeThread(threading.Thread):
                     mapaActualizado[pos[0]][pos[1]]= ride
                 mapaEngine.Update(mapaActualizado)
             except Exception as e:
-                print("Cannot connect to waiting time server: ",e)
+                print("No se puede conectar al waiting time server: ",e)
             time.sleep(2)
     def stop(self):
-        print("Stopping server connection")
+        print("Conexion con waiting time server detenida")
         cu.stopAll()
         nexit = False
         quit()
-
-'''class MapThread(threading.Thread):
-    def __init__(self,puerto):
-        threading.Thread.__init__(self)
-        self.name = "FWQ_WaitingTimeServer server"
-        self.puerto = puerto
-        self.s = socket.socket()
-        self.s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
-        self.s.bind((cu.getIP(),puerto))
-    def run(self):
-        global mapaActualizado
-        global exit
-        global visitantes
-        print("Creado servidor en "+cu.getIP()+" con puerto "+str(puerto))
-        self.s.listen()
-        while True:
-            #print("Esperando")
-            (clientSocket, clientIP) = self.s.accept()
-            #print("Sending current map to "+str(clientIP))
-            name = clientSocket.recv(4096).decode('utf-8')
-            sleep(0.5)
-            if(name in visitantes and visitantes[name]!="NO"):
-                clientSocket.send(cu.mapToStr(mapaActualizado).encode('utf-8'))
-            else:
-                print(name, "where do you think you are going?")
-                print(visitantes)
-                clientSocket.send("NO".encode('utf-8'))
-            clientSocket.close()
-        self.s.close()
-    def closeConnection(self):
-        self.s.close()'''
-
 
 #Lectura y comprobación de argumentos
 cu.uso = "FWQ_Engine [ip:puerto(gestor de colas)] [maximos visitantes] [ip:puerto(FWQ_WaitingTimeServer)]"
@@ -156,17 +114,8 @@ except:
 
 addressWTS = cu.checkIP(sys.argv[3],"FWQ_WaitingTimeServer")
 
-# puerto = 0
-# try:
-#     puerto = int(sys.argv[4])
-# except:
-#     print("El puerto no es un número")
-#     cu.printUso()
-
-
 waitTime = WaitingTimeThread(addressWTS)
 visitorMove = VisitorMovementThread(sys.argv[1])
-#mapSender = MapThread(puerto)
 
 def exit_handler():
     print("stopping")
@@ -174,13 +123,10 @@ def exit_handler():
     nexit = False
     cu.stopAll()
     waitTime.stop()
-    #visitorMove.stop()
-    # cerrar cosas
 atexit.register(exit_handler)
 
 waitTime.start()
 visitorMove.start()
-#mapSender.start()
 
 hecho = False
 print("Iniciados threads del servidor de tiempos de espera y del consumidor kafka")

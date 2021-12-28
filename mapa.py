@@ -137,7 +137,7 @@ class Mapa:
                         pygame.draw.line(self.pantalla, ROJO, [x+self.tamCelda-1, y+3], [x+3, y+self.tamCelda-1], 5)
 
                 elif(isinstance(self.mapa[i][j], Visitor)):
-                    vI=pygame.image.load(f"img/{self.mapa[i][j].id}").convert()
+                    vI=pygame.image.load(f"./img/{self.mapa[i][j].id}").convert()
                     vI=pygame.transform.scale(vI,[int(self.tamCelda), int(self.tamCelda)])   
                     self.pantalla.blit(vI, [i*self.tamCelda+2, j*self.tamCelda+2])
 
