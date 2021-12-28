@@ -19,7 +19,8 @@
     "journey": "^0.4.0-pre-3",
     "mysql": "^2.18.1",
     "request": "^2.88.2",
-    "sqlite": "^4.0.23"
+    "sqlite": "^4.0.23",
+    "sqlite3": "^5.0.2"
   },
   "devDependencies": {}
 }

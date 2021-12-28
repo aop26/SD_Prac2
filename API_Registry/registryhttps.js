@@ -1,5 +1,6 @@
 const https = require("https");
 const fs = require('fs');
+const sqlite3 = require('sqlite3').verbose();
 const journey = require('journey');
 //const app = express();
 var mrouter = new (journey.Router)();
@@ -25,53 +26,6 @@ mrouter.map(function(){
 	//});
 
 
-
-	// -- BASE DE DATOS --
-	// falta cambiarlo a sqlite
-
-	/*const mysql = require ("mysql");
-	const bodyParser = require("body-parser");
-		// Configuración de la conexión a la base de datos MySQL
-	const connection = mysql.createConnection({
-		host: 'localhost',
-		user:'root',
-		password: 'root',
-		database:'SD_MYSQL'
-	});
-
-		// Comprobar conexión a la base de datos
-	connection.connect(error=> {
-	if (error) throw error;
-		console.log('Conexión a la base de datos SD_MYSQL correcta');
-	});*/
-
-
-
-
-	// Funciones para encriptar y desencriptar
-	// var encrypted = CryptoJS.AES.encrypt("Message", "Secret Passphrase");
-	// var decrypted = CryptoJS.AES.decrypt(encrypted, "Secret Passphrase");
-	//function GetKey(){
-	//	var key = "";
-	//
-	//	const readline = require("readline"),
-	//		fs = require("fs"),
-	//		NOMBRE_ARCHIVO = "clave";
-	//	
-	//	let lector = readline.createInterface({
-	//		input: fs.createReadStream(NOMBRE_ARCHIVO)
-	//	});
-	//
-	//	lector.on("line", linea => {
-	//		key = linea; //console.log("Tenemos una línea:", linea);
-	//	});
-	//
-	//	return key;
-	//}
-
-
-
-
 	// FORMATO REQUEST
 	// name
 	// password
@@ -86,20 +40,29 @@ mrouter.map(function(){
 	// -- CRUD --
 
 	// GET lee un usr y devuelve el hash de la contraseña
-	// https://localhost:3000/usr/mlb
+	// https://localhost:3000/usr/mlb51
 	this.get(/^usr\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 
-		//const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
+		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+			if (err) {
+			  console.error(err.message);
+			} else{
+				console.log('Connected to the database.');
+			}
+		});
+
 		console.log("Llamada a GET para: "+usr);
-		response.send('lyenedo usuario: '+usr);
-		//connection.query(sql,(error,resultado)=>{
-		//	if (error) throw error;
-		//	if (resultado.length > 0){
-		//		response.send(); //response.json(resultado);
-		//	} else {
-		//		response.send('No hay resultados');
-		//	}
-		//});
+
+		db.serialize(() => {
+			db.each(`SELECT password FROM CLIENT where username= '${usr}'`, (err, row) => {
+			  if (err) {
+				console.error(err.message);
+			  }
+			  response.send(row.password);
+			});
+		});
+
+		db.close()
 	});
 
 
