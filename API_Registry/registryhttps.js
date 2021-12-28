@@ -57,6 +57,7 @@ mrouter.map(function(){
 			db.each(`SELECT password FROM CLIENT where username= '${usr}'`, (err, row) => {
 			  if (err) {
 				console.error(err.message);
+				response.send(err.message);
 			  }
 			  response.send(row.password);
 			});
@@ -71,31 +72,51 @@ mrouter.map(function(){
 	this.post(/^newusr\/([A-Za-z0-9_]+)\/cntr+\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr, cntr, data) {
 		
 		console.log("Llamada a POST para: "+usr+" - "+cntr);
-		response.send('escribiendo usuario: '+usr);
+		
+		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+			if (err) {
+			  console.error(err.message);
+			} else{
+				console.log('Connected to the database.');
+			}
+		});
 
-		//const sql = 'INSERT INTO Usuarios SET ?';
-		//const usuarioObj = {
-		//	nombre: request.body.nombre,
-		//	ciudad: request.body.ciudad,
-		//	correo: request.body.correo
-		//}
-		//connection.query(sql,usuarioObj,error => {
-		//if (error) throw error;
-		//	response.send('Usuario creado');
-		//});
+		db.run(`INSERT into CLIENT(username, password) VALUES('${usr}', '${cntr}') `, (err) => {
+			if (err) {
+				console.error(err.message);
+				response.send("error");
+			} else{
+				response.send("done");
+			}
+		});
+
+		db.close()
 	});
 
 
 	// PUT actualiza el usuario especificado, devuelve si lo ha hecho
 	// https://localhost:3000/oldusr/mlb/newU/jaja/newC/lol
-	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr, cntr, data) {
+	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).bind(function (request, response, oldusr, newusr, cntr, data) {
 		console.log("Llamada a PUT para: "+usr);
-		response.send('actualizando usuario: '+usr);
-		//const sql = `UPDATE Usuarios SET nombre='${name}', password.='${passwd}' WHERE idUsuario=${id}`;
-		//connection.query(sql,error => {
-		//if (error) throw error;
-		//	response.send('Usuario modificado');
-		//});
+	
+		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+			if (err) {
+			  console.error(err.message);
+			} else{
+				console.log('Connected to the database.');
+			}
+		});
+
+		db.run(`UPDATE CLIENT SET (username='${newusr}', password='${cntr}') where username= '${oldusr}'`, (err) => {
+			if (err) {
+				console.error(err.message);
+				response.send("error");
+			} else{
+				response.send("done");
+			}
+		});
+
+		db.close()
 	});
 
 
@@ -104,13 +125,25 @@ mrouter.map(function(){
 	// https://localhost:3000/delete/mlb
 	this.get(/^delete\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 		console.log("Llamada a DELETE  para: "+usr);
-		response.send('borrando usuario: '+usr);
-		//const {id} = request.params;
-		//sql = `DELETE FROM Usuarios WHERE idUsuario= ${id}`;
-		//connection.query(sql,error => {
-		//if (error) throw error;
-		//	response.send('Usuario borrado');
-		//});
+
+		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+			if (err) {
+			  console.error(err.message);
+			} else{
+				console.log('Connected to the database.');
+			}
+		});
+
+		db.run(`DELETE FROM CLIENT where username= '${usr}'`, (err) => {
+			if (err) {
+				console.error(err.message);
+				response.send("error");
+			} else{
+				response.send("done");
+			}
+		});
+
+		db.close()
 	});
 
 
