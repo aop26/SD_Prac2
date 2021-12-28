@@ -8,6 +8,7 @@ from kafka.consumer.group import KafkaConsumer
 from kafka.errors import KafkaConfigurationError
 from kafka.producer.kafka import KafkaProducer
 from kafka.structs import TopicPartition
+import kafka
 from FWQ_Registry import FORMAT
 from Visitor import *
 from Ride import *
@@ -86,7 +87,7 @@ class MapUpdateThread(threading.Thread):
 cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
 
 print("se comprueban los args")
-if len(sys.argv) != 4:
+if len(sys.argv) != 3:
     print("Número erróneo de argumentos.")
     cu.printUso()
 
@@ -94,7 +95,7 @@ addrReg = cu.checkIP(sys.argv[1],"FWQ_Registry")
 
 addrGes = cu.checkIP(sys.argv[2],"gestor de colas")
 
-addrEng = cu.checkIP(sys.argv[3],"engine")
+#addrEng = cu.checkIP(sys.argv[3],"engine")
 
 op = 0
 while(op != 4):
@@ -209,19 +210,23 @@ while(op != 4):
         
 
         engineCon = cu.kp(sys.argv[2])
-        mapConsumer = cu.kc(sys.argv[2])
+        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None)#cu.kc(sys.argv[2], 'engineres')
+        mapConsumer.poll(timeout_ms=200)
+        #mapConsumer.seek_to_beginning()
         #print(respuesta)
-        engineCon.send('movements',('join-'+done).encode('utf-8'))
+        print(done)
+        engineCon.send('movements',('join,'+done).encode('utf-8'))
         token = None
         m = -1
         while(not token):
             msg = next(mapConsumer)
             message = str(msg.value).replace("b'",'').replace("'",'')
-            namet=message.split('-')[0]
-            if(namet == name):
-                token = message.split('-')[1]
+            print(message)
+            namet=message.split(',')[0]
+            if(namet == done):
+                token = message.split(',')[1]
                 if(token !="NO"):
-                    m = cu.strToMap(message.split('-')[2])
+                    m = cu.strToMap(message.split(',')[2])
 
         
         #updateMapThread = MapUpdateThread(addrEng)
@@ -231,14 +236,14 @@ while(op != 4):
         #    print("Waiting for engine")
         #    sleep(1)
         #m = cu.getMap(sys.argv[2],name)
-        # m=-1
+        # m=,1
         # while(m==-1):
         #     m = cu.getMap(addrEng,done)
         if(m!=-1):
             def exit_handler():
                 global nexit
                 nexit = False
-                engineCon.send('movements',('exit-'+done).encode('utf-8'))
+                engineCon.send('movements',('exit,'+token).encode('utf-8'))
                 engineCon.close()
                 cu.stopAll()
                 if(isinstance(obj, socket.socket)):
@@ -309,7 +314,17 @@ while(op != 4):
                             m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
-                            engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
+                            engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                            mapWhile = True
+                            while(mapWhile):
+                                msg = next(mapConsumer)
+                                message = str(msg.value).replace("b'",'').replace("'",'')
+                                tokent=message.split(',')[0]
+                                if(tokent == token):
+                                    mr = message.split(',')[1]
+                                    mapWhile = False
+                                    if(mr !="NO"):
+                                        m = cu.strToMap(mr)
                             print(visitor.x, visitor.y)
 
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
@@ -325,18 +340,20 @@ while(op != 4):
                                 m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
-                                engineCon.send('movements',('move-'+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)+','+done).encode('utf-8'))
+                                engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                                mapWhile = True
+                                while(mapWhile):
+                                    msg = next(mapConsumer)
+                                    message = str(msg.value).replace("b'",'').replace("'",'')
+                                    tokent=message.split(',')[0]
+                                    if(tokent == token):
+                                        mr = message.split(',')[1]
+                                        mapWhile = False
+                                        if(mr !="NO"):
+                                            m = cu.strToMap(mr)
                             # else: si es un visitor se espera. 
-                        mapWhile = True
-                        while(mapWhile):
-                            msg = next(mapConsumer)
-                            message = str(msg.value).replace("b'",'').replace("'",'')
-                            tokent=message.split('-')[0]
-                            if(tokent == token):
-                                token = message.split('-')[1]
-                                if(token !="NO"):
-                                    m = cu.strToMap(message.split('-')[2])
-                        m = cu.getMap(addrEng,done)
+                        
+                        #m = cu.getMap(addrGes,done)
                         if(m==-1):
                             hecho=True
                             break
