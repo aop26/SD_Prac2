@@ -86,6 +86,7 @@ mrouter.map(function(){
 	// -- CRUD --
 
 	// GET lee un usr y devuelve el hash de la contraseña
+	// https://localhost:3000/usr/mlb
 	this.get(/^usr\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 
 		//const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
@@ -103,8 +104,8 @@ mrouter.map(function(){
 
 
 	// POST crea un usuario nuevo, se devuelve si se ha creado o no
-	this.post(/^newusr\/([A-Za-z0-9_]+)\/cntr+\/([A-Za-z0-9_]+)$/).
-		 bind(function (request, response, usr, cntr, data) {
+	// https://localhost:3000/newusr/mlb/cntr/lol
+	this.post(/^newusr\/([A-Za-z0-9_]+)\/cntr+\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr, cntr, data) {
 		
 		console.log("Llamada a POST para: "+usr+" - "+cntr);
 		response.send('escribiendo usuario: '+usr);
@@ -123,8 +124,8 @@ mrouter.map(function(){
 
 
 	// PUT actualiza el usuario especificado, devuelve si lo ha hecho
-	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).
-	     bind(function (request, response, usr, cntr, data) {
+	// https://localhost:3000/oldusr/mlb/newU/jaja/newC/lol
+	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr, cntr, data) {
 		console.log("Llamada a PUT para: "+usr);
 		response.send('actualizando usuario: '+usr);
 		//const sql = `UPDATE Usuarios SET nombre='${name}', password.='${passwd}' WHERE idUsuario=${id}`;
@@ -137,6 +138,7 @@ mrouter.map(function(){
 
 	// DELETE borra el usuario especificado, devuelve si lo ha hecho
 	// la funcion this.delete no existe, se usa get
+	// https://localhost:3000/delete/mlb
 	this.get(/^delete\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 		console.log("Llamada a DELETE  para: "+usr);
 		response.send('borrando usuario: '+usr);
