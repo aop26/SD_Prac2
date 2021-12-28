@@ -84,17 +84,13 @@ mrouter.map(function(){
 
 
 	// -- CRUD --
-	// hay que modificar los metodos para que lea de nuestra base de datos
 
-	// la string random esta 
-	this.get("/usuario/:name",(request, response) => {
+	// GET lee un usr y devuelve el hash de la contraseña
+	this.get(/^usr\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 
-		//const key = GetKey();
-		//const name = CryptoJS.AES.decrypt(request.body.name, key);
-		//const passwd = CryptoJS.AES.decrypt(request.body.password, key);
-//
 		//const sql = `SELECT * FROM Usuarios where username='${name}' and password='${password}'`;
-		console.log(`Llamada a GET`);
+		console.log("Llamada a GET para: "+usr);
+		response.send('lyenedo usuario: '+usr);
 		//connection.query(sql,(error,resultado)=>{
 		//	if (error) throw error;
 		//	if (resultado.length > 0){
@@ -106,52 +102,51 @@ mrouter.map(function(){
 	});
 
 
-	/*this.post("/",(request, response) => {
-		const key = GetKey();
-		const name = CryptoJS.AES.decrypt(request.body.name, key);
-		const passwd = CryptoJS.AES.decrypt(request.body.password, key);
+	// POST crea un usuario nuevo, se devuelve si se ha creado o no
+	this.post(/^newusr\/([A-Za-z0-9_]+)\/cntr+\/([A-Za-z0-9_]+)$/).
+		 bind(function (request, response, usr, cntr, data) {
+		
+		console.log("Llamada a POST para: "+usr+" - "+cntr);
+		response.send('escribiendo usuario: '+usr);
 
-
-		const sql = 'INSERT INTO Usuarios SET ?';
-		const usuarioObj = {
-			nombre: request.body.nombre,
-			ciudad: request.body.ciudad,
-			correo: request.body.correo
-		}
-		connection.query(sql,usuarioObj,error => {
-		if (error) throw error;
-			response.send('Usuario creado');
-		});
+		//const sql = 'INSERT INTO Usuarios SET ?';
+		//const usuarioObj = {
+		//	nombre: request.body.nombre,
+		//	ciudad: request.body.ciudad,
+		//	correo: request.body.correo
+		//}
+		//connection.query(sql,usuarioObj,error => {
+		//if (error) throw error;
+		//	response.send('Usuario creado');
+		//});
 	});
 
 
-	this.put("/:id",(request, response) => {
-		const key = GetKey();
-		const name = CryptoJS.AES.decrypt(request.body.name, key);
-		const passwd = CryptoJS.AES.decrypt(request.body.password, key);
-		const id = CryptoJS.AES.decrypt(request.body.id, key);
-
-		const sql = `UPDATE Usuarios SET nombre='${name}', password.='${passwd}' WHERE idUsuario=${id}`;
-
-		connection.query(sql,error => {
-		if (error) throw error;
-			response.send('Usuario modificado');
-		});
+	// PUT actualiza el usuario especificado, devuelve si lo ha hecho
+	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).
+	     bind(function (request, response, usr, cntr, data) {
+		console.log("Llamada a PUT para: "+usr);
+		response.send('actualizando usuario: '+usr);
+		//const sql = `UPDATE Usuarios SET nombre='${name}', password.='${passwd}' WHERE idUsuario=${id}`;
+		//connection.query(sql,error => {
+		//if (error) throw error;
+		//	response.send('Usuario modificado');
+		//});
 	});
 
 
-	this.delete("/:id",(request, response) => {
-		const key = GetKey();
-		const id = CryptoJS.AES.decrypt(request.body.id, key);
-
-
+	// DELETE borra el usuario especificado, devuelve si lo ha hecho
+	// la funcion this.delete no existe, se usa get
+	this.get(/^delete\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
+		console.log("Llamada a DELETE  para: "+usr);
+		response.send('borrando usuario: '+usr);
 		//const {id} = request.params;
-		sql = `DELETE FROM Usuarios WHERE idUsuario= ${id}`;
-		connection.query(sql,error => {
-		if (error) throw error;
-			response.send('Usuario borrado');
-		});
-	});*/
+		//sql = `DELETE FROM Usuarios WHERE idUsuario= ${id}`;
+		//connection.query(sql,error => {
+		//if (error) throw error;
+		//	response.send('Usuario borrado');
+		//});
+	});
 
 
 })
