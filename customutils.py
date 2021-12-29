@@ -342,6 +342,35 @@ def DecryptText(text):
     return cifrar.decrypt(text).split()[0]
 
 
+# GESTION USUARIOS
+
+def CreaCuenta(usuario, contraseña):
+    url = "https://localhost:3000/newusr/"+usuario+"/cntr/"+contraseña
+    response = requests.post(str(url), verify=False)
+    return str(response.content).split('"')[-2] == "done"
+    
+
+def IniciaSesion(usuario, contraseña):
+    url = "https://localhost:3000/usr/" + usuario
+    response = requests.get(url, verify=False)
+    response = str(response.content).split('"')[-2]
+    dbPwrd, id = response.split("//")
+
+    if(dbPwrd == contraseña):
+        return id
+    return -1
+
+
+def ModificaCuenta(id, usuario, contraseña):
+    url = "https://localhost:3000/id/"+str(id)+"/name/"+usuario+"/pwrd/"+contraseña
+    response = requests.put(url, verify=False)
+    return str(response.content).split('"')[-2] == "done"
+
+
+def EliminaCuenta(id):
+    url = "https://localhost:3000/delete/"+str(id)
+    response = requests.get(url, verify=False)
+    return str(response.content).split('"')[-2] == "done"
 
 
 '''
