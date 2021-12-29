@@ -27,7 +27,8 @@ class Mapa:
         self.dimensiones = [1000,1000]
         self.origen = [50, 50]
         self.tamCelda = (self.dimensiones[0] - self.origen[0])/20
-        self.temperaturas = [["error",-1], ["error",-1], ["error",-1], ["error",-1]]
+        #self.temperaturas = [["error",-1], ["error",-1], ["error",-1], ["error",-1]]
+        self.temperaturas = GetWeather([])
         pygame.init()
         self.pantalla = pygame.display.set_mode(self.dimensiones) 
         pygame.display.set_caption("Mapa")
