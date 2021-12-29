@@ -39,11 +39,11 @@ mrouter.map(function(){
 
 	// -- CRUD --
 
-	// GET lee un usr y devuelve el hash de la contraseña
+	// GET lee un usr y devuelve el hash de la contraseña // id del usr
 	// https://localhost:3000/usr/mlb51
 	this.get(/^usr\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 
-		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+		let db = new sqlite3.Database('../database.db', sqlite3.OPEN_READWRITE, (err) => {
 			if (err) {
 			  console.error(err.message);
 			} else{
@@ -54,12 +54,12 @@ mrouter.map(function(){
 		console.log("Llamada a GET para: "+usr);
 
 		db.serialize(() => {
-			db.each(`SELECT password FROM CLIENT where username= '${usr}'`, (err, row) => {
+			db.each(`SELECT id, password FROM CLIENT where username= '${usr}'`, (err, row) => {
 			  if (err) {
 				console.error(err.message);
 				response.send(err.message);
 			  }
-			  response.send(row.password);
+			  response.send(row.password + "//" + row.id);
 			});
 		});
 
@@ -73,7 +73,7 @@ mrouter.map(function(){
 		
 		console.log("Llamada a POST para: "+usr+" - "+cntr);
 		
-		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+		let db = new sqlite3.Database('../database.db', sqlite3.OPEN_READWRITE, (err) => {
 			if (err) {
 			  console.error(err.message);
 			} else{
@@ -95,11 +95,11 @@ mrouter.map(function(){
 
 
 	// PUT actualiza el usuario especificado, devuelve si lo ha hecho
-	// https://localhost:3000/oldusr/mlb/newU/jaja/newC/lol
-	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).bind(function (request, response, oldusr, newusr, cntr, data) {
-		console.log("Llamada a PUT para: "+oldusr);
+	// https://localhost:3000/id/23/name/jaja/pwrd/lol
+	this.put(/^id\/([A-Za-z0-9_]+)\/name+\/([A-Za-z0-9_]+)\/pwrd+\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr, nombre, cntr, data) {
+		console.log("Llamada a PUT para: "+usr);
 	
-		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+		let db = new sqlite3.Database('../database.db', sqlite3.OPEN_READWRITE, (err) => {
 			if (err) {
 			  console.error(err.message);
 			} else{
@@ -107,7 +107,7 @@ mrouter.map(function(){
 			}
 		});
 
-		db.run(`UPDATE CLIENT SET (username='${newusr}', password='${cntr}') where username= '${oldusr}'`, (err) => {
+		db.run(`UPDATE CLIENT SET username='${nombre}', password='${cntr}' where id= '${usr}'`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
@@ -122,11 +122,11 @@ mrouter.map(function(){
 
 	// DELETE borra el usuario especificado, devuelve si lo ha hecho
 	// la funcion this.delete no existe, se usa get
-	// https://localhost:3000/delete/mlb
+	// https://localhost:3000/delete/23
 	this.get(/^delete\/([A-Za-z0-9_]+)$/).bind(function (request, response, usr) {
 		console.log("Llamada a DELETE  para: "+usr);
 
-		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
+		let db = new sqlite3.Database('../database.db', sqlite3.OPEN_READWRITE, (err) => {
 			if (err) {
 			  console.error(err.message);
 			} else{
@@ -134,7 +134,7 @@ mrouter.map(function(){
 			}
 		});
 
-		db.run(`DELETE FROM CLIENT where username= '${usr}'`, (err) => {
+		db.run(`DELETE FROM CLIENT where id= '${usr}'`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
