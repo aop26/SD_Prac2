@@ -107,7 +107,7 @@ mrouter.map(function(){
 			}
 		});
 
-		db.run(`UPDATE CLIENT SET (username='${newusr}', password='${cntr}') where username= '${oldusr}'`, (err) => {
+		db.run(`UPDATE CLIENT SET username='${newusr}', password='${cntr}' where username= '${oldusr}'`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
