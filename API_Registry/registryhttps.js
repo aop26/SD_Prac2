@@ -150,7 +150,6 @@ mrouter.map(function(){
 })
 
 https.createServer(options, function(request, response){
-	print
 	var body = "";
 
 	request.addListener('data', function(chunk){body+=chunk});

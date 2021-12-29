@@ -25,6 +25,7 @@ HOST = 'localhost'
 PORT = 5050
 obj = ""
 nexit = True
+engineCon = -1
 def exit_handler():
     global nexit
     global engineCon
