@@ -344,14 +344,14 @@ def DecryptText(text):
 
 # GESTION USUARIOS
 
-def CreaCuenta(usuario, contraseña):
-    url = "https://localhost:3000/newusr/"+usuario+"/cntr/"+contraseña
+def CreaCuenta(usuario, contraseña, host):
+    url = "https://"+host+"/newusr/"+usuario+"/cntr/"+contraseña
     response = requests.post(str(url), verify=False)
     return str(response.content).split('"')[-2] == "done"
     
 
-def IniciaSesion(usuario, contraseña):
-    url = "https://localhost:3000/usr/" + usuario
+def IniciaSesion(usuario, contraseña, host):
+    url = "https://"+host+"/usr/" + usuario
     response = requests.get(url, verify=False)
     response = str(response.content).split('"')[-2]
     dbPwrd, id = response.split("//")
@@ -361,14 +361,14 @@ def IniciaSesion(usuario, contraseña):
     return -1
 
 
-def ModificaCuenta(id, usuario, contraseña):
-    url = "https://localhost:3000/id/"+str(id)+"/name/"+usuario+"/pwrd/"+contraseña
+def ModificaCuenta(id, usuario, contraseña, host):
+    url = "https://"+host+"/id/"+str(id)+"/name/"+usuario+"/pwrd/"+contraseña
     response = requests.put(url, verify=False)
     return str(response.content).split('"')[-2] == "done"
 
 
-def EliminaCuenta(id):
-    url = "https://localhost:3000/delete/"+str(id)
+def EliminaCuenta(id, host):
+    url = "https://"+host+"/delete/"+str(id)
     response = requests.get(url, verify=False)
     return str(response.content).split('"')[-2] == "done"
 

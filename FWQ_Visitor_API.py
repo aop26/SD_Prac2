@@ -21,13 +21,14 @@ import socket
 import atexit
 import requests
 
-from prueba import CreaCuenta, IniciaSesion
+#from prueba import CreaCuenta, IniciaSesion
 
 
 HOST = 'localhost'
 PORT = 5050
 obj = ""
 nexit = True
+engineCon = -1
 def exit_handler():
     global nexit
     global engineCon
@@ -50,38 +51,11 @@ class MapUpdateThread(threading.Thread):
         global nexit
         global m
         mapConsumer = None
-        #while not mapConsumer:
-        #    try:
-        #        topic = name+"_map"
-        #        mapConsumer= KafkaConsumer(bootstrap_servers=self.addr,group_id=None,auto_offset_reset="earliest")#KafkaConsumer(bootstrap_servers=sys.argv[2],group_id=None)#
-        #        mapConsumer.assign([TopicPartition(topic,0)])
-        #        #mapConsumer.assign([TopicPartition(name+'_map',0)])
-        #        #mapConsumer.poll()
-        #        #mapConsumer.seek_to_beginning()
-        #    except Exception as e:
-        #        print("No se ha podido conectar a kafka. Reintentando en 1 segundo.\n",e)
-        #        time.sleep(1)
-        #        if(not nexit):
-        #            quit()
-        #print("waiting")
         asdf = 0
         while(nexit):
             m = getMap(self.addr)
             print(m)
             sleep(1)
-            #print("waiting",asdf)
-            #asdf+=1
-            #print(mapConsumer.highwater(TopicPartition(topic,0)))
-            #msg = next(mapConsumer)
-            #message = str(msg.value).replace('b','').replace("'",'')
-            #m=False
-            #if(message == "NO"):
-            #    m= "NO"
-            #else:
-            #    m= cu.strToMap(message)
-            #mapConsumer.close()
-            #mapConsumer= KafkaConsumer(bootstrap_servers=self.addr,group_id=None,auto_offset_reset="latest")#KafkaConsumer(bootstrap_servers=sys.argv[2],group_id=None)#
-            #mapConsumer.assign([TopicPartition(topic,0)])
     def stop():
         nexit = False
         stopAll()
@@ -90,7 +64,7 @@ class MapUpdateThread(threading.Thread):
 uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
 
 print("se comprueban los args")
-if len(sys.argv) != 4:
+if len(sys.argv) != 3:
     print("Número erróneo de argumentos.")
     printUso()
 
@@ -98,7 +72,7 @@ addrReg = checkIP(sys.argv[1],"FWQ_Registry")
 
 addrGes = checkIP(sys.argv[2],"gestor de colas")
 
-addrEng = checkIP(sys.argv[3],"engine")
+#addrEng = checkIP(sys.argv[3],"engine")
 
 
 sesionIniciada = False
@@ -133,7 +107,7 @@ while(op != 4):
 
         name = input("Escribe tu nombre: ")
         password = HashPassword(input("Escribe tu contraseña: "))
-        id = IniciaSesion(name, password)
+        id = IniciaSesion(name, password, sys.argv[1])
         if(id != -1):
             print("Sesion iniciada!")
             sesionIniciada = True
@@ -157,7 +131,7 @@ while(op != 4):
             elif(editOp == "c"):
                 password = HashPassword(input("Escribe tu contraseña: "))
             elif(editOp == "g"):
-                if(ModificaCuenta(id, name, password)):
+                if(ModificaCuenta(id, name, password, sys.argv[1])):
                     print("Cuenta modificada!")
                 else:
                     print("Error modifcando la cuenta.")
@@ -176,7 +150,7 @@ while(op != 4):
         sn = input("Estas seguro de que quieres eliminar tu cuenta?[s/n]")
 
         if(sn == "s" or sn == "S"):
-            if(EliminaCuenta(id)):
+            if(EliminaCuenta(id, sys.argv[1])):
                 print("Cuenta eliminada.")
             else:
                 print("Error eliminando cuenta.")
@@ -218,12 +192,13 @@ while(op != 4):
                     obj.close()
 
             atexit.register(exit_handler)
-            visitor = Visitor(name)
+            visitor = Visitor(done) # un boejto para un visitor
 
+            #m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor
 
             clientMap = Mapa(m)
-
+#
             atracciones = []
             for i in range(20):
                 for j in range(20):
@@ -320,7 +295,7 @@ while(op != 4):
                                             m = cu.strToMap(mr)
                             # else: si es un visitor se espera. 
                         
-                        #m = cu.getMap(addrGes,name)
+                        #m = cu.getMap(addrGes,done)
                         if(m==-1):
                             hecho=True
                             break
