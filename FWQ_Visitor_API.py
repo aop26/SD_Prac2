@@ -95,7 +95,7 @@ while(op != 4):
         name = input("Escribe tu nombre: ")
         password = HashPassword(input("Escribe tu contraseña: "))
 
-        if(CreaCuenta(name, password)):
+        if(CreaCuenta(name, password, sys.argv[1])):
             print("Cuenta creada! Ya puedes iniciar sesion.")
         else:
             print("Error creando cuenta")
