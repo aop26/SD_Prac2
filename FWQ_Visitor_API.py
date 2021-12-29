@@ -77,7 +77,7 @@ addrGes = checkIP(sys.argv[2],"gestor de colas")
 
 sesionIniciada = False
 op = 0
-while(op != 4):
+while(op != 6):
     obj = ""
     print("1. Crear cuenta.")
     print("2. Iniciar sesion")
@@ -152,6 +152,7 @@ while(op != 4):
         if(sn == "s" or sn == "S"):
             if(EliminaCuenta(id, sys.argv[1])):
                 print("Cuenta eliminada.")
+                sesionIniciada=False
             else:
                 print("Error eliminando cuenta.")
 
@@ -162,32 +163,29 @@ while(op != 4):
         # ENTRA EN EL PARQUE
 
 
-        engineCon = cu.kp(sys.argv[2])
-        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None)#cu.kc(sys.argv[2], 'engineres')
+        engineCon = kp(sys.argv[2])
+        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None)#kc(sys.argv[2], 'engineres')
         mapConsumer.poll(timeout_ms=200)
-        #mapConsumer.seek_to_beginning()
-        #print(respuesta)
-        #print(name)
-        engineCon.send('movements',('join,'+name).encode('utf-8'))
+        engineCon.send('movements',EncryptText('join,'+done))
         token = None
         m = -1
         while(not token):
             msg = next(mapConsumer)
-            message = str(msg.value).replace("b'",'').replace("'",'')
+            message = DecryptText(msg.value).replace("b'",'').replace("'",'')
             print(message)
             namet=message.split(',')[0]
-            if(namet == name):
+            if(namet == done):
                 token = message.split(',')[1]
                 if(token !="NO"):
-                    m = cu.strToMap(message.split(',')[2])
-        
+                    m = strToMap(message.split(',')[2])
+
         if(m!=-1):
             def exit_handler():
                 global nexit
                 nexit = False
-                engineCon.send('movements',('exit,'+token).encode('utf-8'))
+                engineCon.send('movements',EncryptText('exit,'+token))
                 engineCon.close()
-                cu.stopAll()
+                stopAll()
                 if(isinstance(obj, socket.socket)):
                     obj.close()
 
@@ -198,7 +196,7 @@ while(op != 4):
             m[visitor.x][visitor.y] = visitor
 
             clientMap = Mapa(m)
-#
+
             atracciones = []
             for i in range(20):
                 for j in range(20):
@@ -256,17 +254,17 @@ while(op != 4):
                             m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
-                            engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                            engineCon.send('movements',EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
                             mapWhile = True
                             while(mapWhile):
                                 msg = next(mapConsumer)
-                                message = str(msg.value).replace("b'",'').replace("'",'')
+                                message = DecryptText(msg.value).replace("b'",'').replace("'",'')
                                 tokent=message.split(',')[0]
                                 if(tokent == token):
                                     mr = message.split(',')[1]
                                     mapWhile = False
                                     if(mr !="NO"):
-                                        m = cu.strToMap(mr)
+                                        m = strToMap(mr)
                             print(visitor.x, visitor.y)
 
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
@@ -282,20 +280,20 @@ while(op != 4):
                                 m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
-                                engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                                engineCon.send('movements',EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
                                 mapWhile = True
                                 while(mapWhile):
                                     msg = next(mapConsumer)
-                                    message = str(msg.value).replace("b'",'').replace("'",'')
+                                    message = DecryptText(msg.value).replace("b'",'').replace("'",'')
                                     tokent=message.split(',')[0]
                                     if(tokent == token):
                                         mr = message.split(',')[1]
                                         mapWhile = False
                                         if(mr !="NO"):
-                                            m = cu.strToMap(mr)
+                                            m = strToMap(mr)
                             # else: si es un visitor se espera. 
                         
-                        #m = cu.getMap(addrGes,done)
+                        #m = getMap(addrGes,done)
                         if(m==-1):
                             hecho=True
                             break
@@ -307,7 +305,7 @@ while(op != 4):
                     
 
 
-                #m = cu.getMap(addrEng,name)
+                #m = getMap(addrEng,name)
                 if(m==-1):
                     hecho=True
                     break
@@ -318,7 +316,7 @@ while(op != 4):
                 visitor.timer += 1
 
 
-            op = 4
+            op = 6
 
 
     else:

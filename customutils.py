@@ -358,9 +358,9 @@ def DecryptText(data):
 
 def CreaCuenta(usuario, contraseña, host):
     url = "https://"+host+"/newusr/"+usuario+"/cntr/"+contraseña
-    print(url)
+    #print(url)
     response = requests.post(str(url), verify=False)
-    print(str(response.content))
+    #print(str(response.content))
     return str(response.content).split('"')[-2] == "done"
     
 

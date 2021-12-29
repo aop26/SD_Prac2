@@ -132,8 +132,7 @@ class Mapa:
                         txt = self.fuenteCola.render(str(-1), True, NEGRO) 
                         self.pantalla.blit(txt, [x, y])
                     
-                    sector = i%10 + j%10*2
-
+                    sector = i//10 + j//10*2
                     if(not (20 <= self.temperaturas[sector][1] <= 30)): # si se desconecta tacha la celda con una X roja
                         x = i*self.tamCelda
                         y = j*self.tamCelda
