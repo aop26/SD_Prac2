@@ -27,7 +27,6 @@ class Mapa:
         self.dimensiones = [1000,1000]
         self.origen = [50, 50]
         self.tamCelda = (self.dimensiones[0] - self.origen[0])/20
-        #self.temperaturas = [["error",-1], ["error",-1], ["error",-1], ["error",-1]]
         self.temperaturas = GetWeather([])
         pygame.init()
         self.pantalla = pygame.display.set_mode(self.dimensiones) 
@@ -56,6 +55,9 @@ class Mapa:
                             for j in range(20):
                                 if(isinstance(self.mapa[i][j], Ride)):
                                     self.mapa[i][j].connected = not self.mapa[i][j].connected 
+
+        self.temperaturas = GetWeather(self.temperaturas)
+
         self.pantalla.fill(BLANCO)
 
 
@@ -69,8 +71,8 @@ class Mapa:
         pygame.draw.rect(self.pantalla, CUAD4, [self.origen[0]+self.tamCelda*10, self.origen[1]+self.tamCelda*10, 
                                                 self.tamCelda*10, self.tamCelda*10])
 
+
         # se escriben las temperaturas
-        
         if(self.temperaturas[0][0] != "error"):
             txt = self.fuenteTemp.render(str(self.temperaturas[0][1]), True, TEMP)
         else:
@@ -96,11 +98,6 @@ class Mapa:
         self.pantalla.blit(txt, [self.origen[0]+self.tamCelda*10, self.origen[1]+self.tamCelda*10])
 
 
-
-
-
-
-
         # se dibuja la cuadricula
         for i in range(20):
             pygame.draw.line(self.pantalla, NEGRO, [self.origen[0]+i*self.tamCelda, self.origen[1]], 
@@ -108,7 +105,6 @@ class Mapa:
             pygame.draw.line(self.pantalla, NEGRO, [self.origen[0], self.origen[1]+i*self.tamCelda], 
                                                    [self.dimensiones[0], self.origen[1]+i*self.tamCelda], 3)
 
-    
     
         # se escriben los numeros de la cuadricula
         pV0 = [self.origen[0]-self.tamCelda*0.6, self.origen[1]+self.tamCelda/2]
@@ -126,12 +122,19 @@ class Mapa:
         for i in range(20):
             for j in range(20):
                 if(isinstance(self.mapa[i][j], Ride)):
-                    txt = self.fuenteCola.render(str(self.mapa[i][j].waitingTime), True, NEGRO) 
                     x = i*self.tamCelda + 5
                     y = j*self.tamCelda + 5
-                    self.pantalla.blit(txt, [x, y])
+                    
+                    if(not self.mapa[i][j].connected): # si se desconecta el t de espera es -1
+                        txt = self.fuenteCola.render(str(self.mapa[i][j].waitingTime), True, NEGRO) 
+                        self.pantalla.blit(txt, [x, y])
+                    else:
+                        txt = self.fuenteCola.render(str(-1), True, NEGRO) 
+                        self.pantalla.blit(txt, [x, y])
+                    
+                    sector = i%10 + j%10*2
 
-                    if(not self.mapa[i][j].connected): # si se desconecta tacha la celda con una X roja
+                    if(not (20 <= self.temperaturas[sector][1] <= 30)): # si se desconecta tacha la celda con una X roja
                         x = i*self.tamCelda
                         y = j*self.tamCelda
                         pygame.draw.line(self.pantalla, ROJO, [x+3, y+3], [x+self.tamCelda-1, y+self.tamCelda-1], 5)
