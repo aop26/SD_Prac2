@@ -11,3 +11,5 @@ __pycache__/customutils.cpython-39.pyc
 prueba.py
 API_registry/cert/key.pem
 API_registry/cert/cert.pem
+API_Registry/cert/cert.pem
+API_Registry/cert/key.pem
