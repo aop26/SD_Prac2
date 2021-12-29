@@ -166,7 +166,7 @@ while(op != 6):
         engineCon = kp(sys.argv[2])
         mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None)#kc(sys.argv[2], 'engineres')
         mapConsumer.poll(timeout_ms=200)
-        engineCon.send('movements',EncryptText('join,'+done))
+        engineCon.send('movements',EncryptText('join,'+id))
         token = None
         m = -1
         while(not token):
@@ -174,7 +174,7 @@ while(op != 6):
             message = DecryptText(msg.value).replace("b'",'').replace("'",'')
             print(message)
             namet=message.split(',')[0]
-            if(namet == done):
+            if(namet == id):
                 token = message.split(',')[1]
                 if(token !="NO"):
                     m = strToMap(message.split(',')[2])
@@ -190,7 +190,7 @@ while(op != 6):
                     obj.close()
 
             atexit.register(exit_handler)
-            visitor = Visitor(done) # un boejto para un visitor
+            visitor = Visitor(id) # un boejto para un visitor
 
             #m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor

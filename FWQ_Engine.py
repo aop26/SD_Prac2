@@ -44,7 +44,7 @@ class VisitorMovementThread(threading.Thread):
                     token = uuid4()
                     visitantes[str(token)]=[0,0,time.time()]
                     txt = cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))#cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
-                    visitorAnswerer.send('engineres',txt.encode('utf-8'))
+                    visitorAnswerer.send('engineres',txt)
                     print(data," ha iniciado sesión!")
             elif(action=="move" and data in visitantes and visitantes[data]!="NO"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
@@ -52,7 +52,7 @@ class VisitorMovementThread(threading.Thread):
                 posy=int(message.split(',')[3])
                 visitantes[data] = [posx,posy, time.time()]
                 mapaActualizado[posx][posy]=Visitor(int(message.split(',')[4]))
-                visitorAnswerer.send('engineres',cu.EncryptText(str(str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8')))
+                visitorAnswerer.send('engineres',cu.EncryptText(str(str(token)+','+cu.mapToStr(mapaActualizado))))
             elif(action=="exit"and data in visitantes and visitantes[data]!="NO"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
                 visitantes.pop(data)
