@@ -132,5 +132,8 @@ hecho = False
 print("Iniciados threads del servidor de tiempos de espera y del consumidor kafka")
 while not hecho:
     hecho = mapaEngine.DrawMapa()
+    f = open("map.txt","w")
+    f.write(cu.mapToStr(mapaActualizado))
+    f.close()
 
 quit()
