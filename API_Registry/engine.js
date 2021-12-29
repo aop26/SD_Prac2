@@ -21,7 +21,7 @@ function strToMap(str) {
                 i++;
             }
             i--;
-            m[currentCount-parseInt(currentCount/20)*20][parseInt(currentCount/20)]=auxStr;
+            m[currentCount-parseInt(currentCount/20)*20-1][parseInt(currentCount/20)-1]=auxStr;
         }else if(str[i]=='u'){
             var auxStr = "";
             i++;
@@ -30,7 +30,7 @@ function strToMap(str) {
                 i+=1;
             }
             i--;
-            m[currentCount-parseInt(currentCount/20)*20][parseInt(currentCount/20)]="/img/"+auxStr;
+            m[currentCount-parseInt(currentCount/20)*20-1][parseInt(currentCount/20)-1]="/img/"+auxStr;
         }
         currentCount++;
     }
@@ -38,21 +38,33 @@ function strToMap(str) {
     return m
 }
 function mapHtml(host){
-    var start = '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="1"><style>th {border: 1px solid black;padding:0}th{width:50px}th{height:50px}</style></head><body><table>';
+    var start = '<!DOCTYPE html><html><head><meta http-equiv="refresh" content="1"><style>th {border: 1px solid black;padding:0;width:40px; height:40px;}th.first{background-color:#FF8080}th.second{background-color:#80FF80}th.third{background-color:#8080FF}th.fourth{background-color:#FFFF80}</style></head><body><table>';
     var end = '</table></body></html>'
     var body = ''
     m = strToMap(readMap());
     for (let i = 0; i < m.length; i++) {
         body+='<tr>'
         for (let j = 0; j < m[i].length; j++) {
-            body+='<th>'
+            var clase = 'first';
+            if(j < 10){
+                if(i > 9){
+                    clase = 'third';
+                }
+            }else{
+                if(i < 10){
+                    clase = 'second';
+                }else{
+                    clase = 'fourth';
+                }
+            }
+            body+='<th class="'+clase+'">'
             var element = m[j][i];
             //console.log(element)
             if(element!=0){
                 if(isNumeric(element)){
                     body+=element;
                 }else{
-                    body+='<img src="https://'+host+element+'" alt="'+element+'" width="50" height="50">';
+                    body+='<img src="https://'+host+element+'" alt="'+element+'" width="40" height="40">';
                 }
             }
             body+='</th>'

@@ -50,7 +50,7 @@ class VisitorMovementThread(threading.Thread):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
                 posx=int(message.split(',')[2])
                 posy=int(message.split(',')[3])
-                visitantes[data] = [posx,posy]
+                visitantes[data] = [posx,posy, time.time()]
                 mapaActualizado[posx][posy]=Visitor(int(message.split(',')[4]))
                 visitorAnswerer.send('engineres',str(str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
             elif(action=="exit"and data in visitantes and visitantes[data]!="NO"):
@@ -135,5 +135,15 @@ while not hecho:
     f = open("map.txt","w")
     f.write(cu.mapToStr(mapaActualizado))
     f.close()
+    delT = []
+    for t in visitantes:
+        if(visitantes[t]!="NO" and time.time()-visitantes[t][2]>5):
+            delT.append(t)
+            
+    for token in delT:
+        print(token,"disconnected")
+        mapaActualizado[visitantes[token][0]][visitantes[token][1]]=0
+        visitantes.pop(token)
+        mapaEngine.Update(mapaActualizado)
 
 quit()
