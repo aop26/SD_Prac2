@@ -12,7 +12,7 @@ from kafka.structs import TopicPartition
 from FWQ_Registry import FORMAT
 from Visitor import *
 from Ride import *
-from mapa import *
+import mapa
 import sys
 from customutils import *
 from os import system
@@ -195,7 +195,7 @@ while(op != 6):
             #m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor
 
-            clientMap = Mapa(m)
+            clientMap = mapa.Mapa(m)
 
             atracciones = []
             for i in range(20):
@@ -227,7 +227,7 @@ while(op != 6):
                     atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
                         atraccionSeleccionada = -1
                         for i in range(len(atracciones)):
-                            if(atracciones[i].waitingTime < 60 and i not in atrVisitadas): 
+                            if(atracciones[i].waitingTime < 60 and i not in atrVisitadas and atracciones[i].abierta(mapa.temperaturas)): 
                                 atraccionSeleccionada = i
                                 print("selecciona:", i,atracciones[i].x,atracciones[i].y)
                                 break

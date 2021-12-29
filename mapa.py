@@ -20,14 +20,14 @@ CUAD2 = (120, 200, 120)
 CUAD3 = (120, 120, 200)
 CUAD4 = (250, 200, 120)
 
-
+temperaturas = GetWeather([])
 class Mapa:
     def __init__(self, mapa):
         self.mapa = mapa + []
         self.dimensiones = [1000,1000]
         self.origen = [50, 50]
         self.tamCelda = (self.dimensiones[0] - self.origen[0])/20
-        self.temperaturas = GetWeather([])
+        temperaturas = GetWeather([])
         pygame.init()
         self.pantalla = pygame.display.set_mode(self.dimensiones) 
         pygame.display.set_caption("Mapa")
@@ -44,6 +44,7 @@ class Mapa:
 
 
     def DrawMapa(self, debug=False):
+        global temperaturas
         for evento in pygame.event.get():
             if evento.type == pygame.QUIT: 
                 pygame.quit()
@@ -56,7 +57,7 @@ class Mapa:
                                 if(isinstance(self.mapa[i][j], Ride)):
                                     self.mapa[i][j].connected = not self.mapa[i][j].connected 
 
-        self.temperaturas = GetWeather(self.temperaturas)
+        temperaturas = GetWeather(temperaturas)
 
         self.pantalla.fill(BLANCO)
 
@@ -73,26 +74,26 @@ class Mapa:
 
 
         # se escriben las temperaturas
-        if(self.temperaturas[0][0] != "error"):
-            txt = self.fuenteTemp.render(str(self.temperaturas[0][1]), True, TEMP)
+        if(temperaturas[0][0] != "error"):
+            txt = self.fuenteTemp.render(str(temperaturas[0][1]), True, TEMP)
         else:
             txt = self.fuenteTemp.render("error", True, TEMP)
         self.pantalla.blit(txt, [self.origen[0], self.origen[1]])
 
-        if(self.temperaturas[1][0] != "error"):
-            txt = self.fuenteTemp.render(str(self.temperaturas[1][1]), True, TEMP)
+        if(temperaturas[1][0] != "error"):
+            txt = self.fuenteTemp.render(str(temperaturas[1][1]), True, TEMP)
         else:
             txt = self.fuenteTemp.render("error", True, TEMP)
         self.pantalla.blit(txt, [self.origen[0]+self.tamCelda*10, self.origen[1]])
 
-        if(self.temperaturas[2][0] != "error"):
-            txt = self.fuenteTemp.render(str(self.temperaturas[2][1]), True, TEMP)
+        if(temperaturas[2][0] != "error"):
+            txt = self.fuenteTemp.render(str(temperaturas[2][1]), True, TEMP)
         else:
             txt = self.fuenteTemp.render("error", True, TEMP)
         self.pantalla.blit(txt, [self.origen[0], self.origen[1]+self.tamCelda*10])
 
-        if(self.temperaturas[3][0] != "error"):
-            txt = self.fuenteTemp.render(str(self.temperaturas[3][1]), True, TEMP)
+        if(temperaturas[3][0] != "error"):
+            txt = self.fuenteTemp.render(str(temperaturas[3][1]), True, TEMP)
         else:
             txt = self.fuenteTemp.render("error", True, TEMP)
         self.pantalla.blit(txt, [self.origen[0]+self.tamCelda*10, self.origen[1]+self.tamCelda*10])
@@ -133,8 +134,8 @@ class Mapa:
                         self.pantalla.blit(txt, [x, y])
                     
                     sector = i//10 + j//10*2
-                    #print(self.temperaturas)
-                    if(not (20 <= self.temperaturas[sector][1] <= 30)): # si se desconecta tacha la celda con una X roja
+                    #print(temperaturas)
+                    if(not (20 <= temperaturas[sector][1] <= 30)): # si se desconecta tacha la celda con una X roja
                         x = i*self.tamCelda
                         y = j*self.tamCelda
                         pygame.draw.line(self.pantalla, ROJO, [x+3, y+3], [x+self.tamCelda-1, y+self.tamCelda-1], 5)
