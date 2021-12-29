@@ -31,20 +31,20 @@ class VisitorMovementThread(threading.Thread):
         while(nexit):
             global mapaActualizado
             msg = next(visitorReader)
-            message = str(msg.value).replace("b'",'').replace("'",'')
+            message = cu.DecryptText(msg.value).replace("b'",'').replace("'",'')
             action = message.split(',')[0]
             data = message.split(',')[1]
             if(action=="join"):
                 if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
                     visitantes[data]="NO"
-                    #txt = cu.EncryptText(str(str(data)+',NO'))
-                    visitorAnswerer.send('engineres',str(str(data)+',NO').encode('utf-8'))
+                    txt = cu.EncryptText(str(str(data)+',NO'))
+                    visitorAnswerer.send('engineres',txt)
                     print(data," no cabe en el parque!")
                 else:
                     token = uuid4()
                     visitantes[str(token)]=[0,0,time.time()]
-                    txt = str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado))#cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
-                    visitorAnswerer.send('engineres',txt.encode('utf-8'))
+                    txt = cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))#cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
+                    visitorAnswerer.send('engineres',txt)
                     print(data," ha iniciado sesión!")
             elif(action=="move" and data in visitantes and visitantes[data]!="NO"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
@@ -52,7 +52,7 @@ class VisitorMovementThread(threading.Thread):
                 posy=int(message.split(',')[3])
                 visitantes[data] = [posx,posy, time.time()]
                 mapaActualizado[posx][posy]=Visitor(int(message.split(',')[4]))
-                visitorAnswerer.send('engineres',str(str(token)+','+cu.mapToStr(mapaActualizado)).encode('utf-8'))
+                visitorAnswerer.send('engineres',cu.EncryptText(str(str(token)+','+cu.mapToStr(mapaActualizado))))
             elif(action=="exit"and data in visitantes and visitantes[data]!="NO"):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
                 visitantes.pop(data)

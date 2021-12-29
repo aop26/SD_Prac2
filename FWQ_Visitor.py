@@ -25,6 +25,7 @@ HOST = 'localhost'
 PORT = 5050
 obj = ""
 nexit = True
+engineCon = -1
 def exit_handler():
     global nexit
     global engineCon
@@ -215,12 +216,12 @@ while(op != 4):
         #mapConsumer.seek_to_beginning()
         #print(respuesta)
         print(done)
-        engineCon.send('movements',('join,'+done).encode('utf-8'))
+        engineCon.send('movements',cu.EncryptText('join,'+done))
         token = None
         m = -1
         while(not token):
             msg = next(mapConsumer)
-            message = str(msg.value).replace("b'",'').replace("'",'')
+            message = cu.DecryptText(msg.value).replace("b'",'').replace("'",'')
             print(message)
             namet=message.split(',')[0]
             if(namet == done):
@@ -243,7 +244,7 @@ while(op != 4):
             def exit_handler():
                 global nexit
                 nexit = False
-                engineCon.send('movements',('exit,'+token).encode('utf-8'))
+                engineCon.send('movements',cu.EncryptText('exit,'+token))
                 engineCon.close()
                 cu.stopAll()
                 if(isinstance(obj, socket.socket)):
@@ -314,11 +315,11 @@ while(op != 4):
                             m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
-                            engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                            engineCon.send('movements',cu.EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
                             mapWhile = True
                             while(mapWhile):
                                 msg = next(mapConsumer)
-                                message = str(msg.value).replace("b'",'').replace("'",'')
+                                message = DecryptText(msg.value).replace("b'",'').replace("'",'')
                                 tokent=message.split(',')[0]
                                 if(tokent == token):
                                     mr = message.split(',')[1]
@@ -340,11 +341,11 @@ while(op != 4):
                                 m[visitor.x][visitor.y] = m[visitor.x+move[0]][visitor.y+move[1]]
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
-                                engineCon.send('movements',('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)).encode('utf-8'))
+                                engineCon.send('movements',cu.EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
                                 mapWhile = True
                                 while(mapWhile):
                                     msg = next(mapConsumer)
-                                    message = str(msg.value).replace("b'",'').replace("'",'')
+                                    message = cu.DecryptText(msg.value).replace("b'",'').replace("'",'')
                                     tokent=message.split(',')[0]
                                     if(tokent == token):
                                         mr = message.split(',')[1]

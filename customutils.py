@@ -7,7 +7,10 @@ from kafka.admin import KafkaAdminClient,NewTopic
 from os.path import exists
 import os
 import sqlite3
-from Crypto.Cipher import AES 
+import base64
+import hashlib
+from Crypto import Random
+from Crypto.Cipher import AES
 from Crypto.Hash import SHA256 
 import requests
 from kafka.producer.kafka import KafkaProducer
@@ -320,35 +323,44 @@ def GetWeather(data):
 def HashPassword(password):
     hash = SHA256.new()
     hash.update(password.encode("utf-8"))
-    return str(hash.digest())
+    print(str(hash.hexdigest()))
+    return str(hash.hexdigest())
 
 
 def GetKey():
     file = open("clave", "r")
     key = file.readline()
     file.close()
-    return key
+    return hashlib.sha256(key.encode()).digest()
 
 
 def EncryptText(txt):
-    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
-    while(len(txt)%16 != 0):
-        txt += " "
-    return cifrar.encrypt(txt)
+    txt = _pad(txt)
+    iv = Random.new().read(AES.block_size)
+    cipher = AES.new(GetKey(), AES.MODE_CBC, iv)
+    return base64.b64encode(iv + cipher.encrypt(txt.encode())).decode().encode('utf-8')
 
+def _pad(s):
+    bs = AES.block_size
+    return s + (bs - len(s) % bs) * chr(bs - len(s) % bs)
 
-def DecryptText(text):
-    cifrar = AES.new(GetKey(), AES.MODE_CBC, 'This is an IV456')
-    return cifrar.decrypt(text).split()[0]
+def _unpad(s):
+    return s[:-ord(s[len(s)-1:])]
+
+def DecryptText(data):
+    data = base64.b64decode(data)
+    iv = data[:AES.block_size]
+    cipher = AES.new(GetKey(), AES.MODE_CBC, iv)
+    return _unpad(cipher.decrypt(data[AES.block_size:])).decode('utf-8')
 
 
 # GESTION USUARIOS
 
 def CreaCuenta(usuario, contraseña, host):
     url = "https://"+host+"/newusr/"+usuario+"/cntr/"+contraseña
-    print(url)
+    #print(url)
     response = requests.post(str(url), verify=False)
-    print(str(response.content))
+    #print(str(response.content))
     return str(response.content).split('"')[-2] == "done"
     
 
