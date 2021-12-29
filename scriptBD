@@ -9,7 +9,6 @@ create table if not exists  RIDE
 );
 
 
-
 create table if not exists CLIENT
     (id integer primary key autoincrement,
     x integer, 
@@ -20,6 +19,13 @@ create table if not exists CLIENT
 );
 
 
+create table if not exists LOGS(
+    id integer primary key autoincrement,
+    fecha datetime,
+    ip varchar2,
+    accion varchar2,
+    descripcion varchar2
+);
 
 insert into RIDE(x,y,waitTime,maxPeople) VALUES(12, 7, 1,5);
 insert into RIDE(x,y,waitTime,maxPeople) VALUES(1, 11, 2,10);

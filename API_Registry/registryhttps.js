@@ -52,14 +52,28 @@ mrouter.map(function(){
 		});
 
 		console.log("Llamada a GET para: "+usr);
+		var accion = "Lectura";
 
 		db.serialize(() => {
 			db.each(`SELECT id, password FROM CLIENT where username= '${usr}'`, (err, row) => {
 			  if (err) {
 				console.error(err.message);
 				response.send(err.message);
+				var accion = "Error en lectura";
 			  }
 			  response.send(row.password + "//" + row.id);
+			});
+		});
+
+		// Guarda el log  ---  fecha, ip, accion, descr
+		let ip = request.socket.remoteAddress.replace('::ffff:','');
+		let descr = `usr:${usr}`;
+		db.serialize(() => {
+			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			  if (err) {
+				console.error(err.message);
+			  }
+			  console.log("Log guardado.");
 			});
 		});
 
@@ -81,13 +95,28 @@ mrouter.map(function(){
 			}
 		});
 
-		db.run(`INSERT into CLIENT(username, password) VALUES('${usr}', '${cntr}') `, (err) => {
+		var accion = "Alta";
+
+		db.run(`INSERT into CLIENT(username, password) VALUES('${usr}', '${cntr}')`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
+				var accion = "Error en alta";
 			} else{
 				response.send("done");
 			}
+		});
+
+		// Guarda el log  ---  fecha, ip, accion, descr
+		let ip = request.socket.remoteAddress.replace('::ffff:','');
+		let descr = `usr:${usr}`;
+		db.serialize(() => {
+			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			  if (err) {
+				console.error(err.message);
+			  }
+			  console.log("Log guardado.");
+			});
 		});
 
 		db.close()
@@ -107,13 +136,28 @@ mrouter.map(function(){
 			}
 		});
 
+		var accion = "Modificacion";
+
 		db.run(`UPDATE CLIENT SET username='${nombre}', password='${cntr}' where id= '${usr}'`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
+				var accion = "Error en modificacion";
 			} else{
 				response.send("done");
 			}
+		});
+
+		// Guarda el log  ---  fecha, ip, accion, descr
+		let ip = request.socket.remoteAddress.replace('::ffff:','');
+		let descr = `id;${id}, usr:${usr}`;
+		db.serialize(() => {
+			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			  if (err) {
+				console.error(err.message);
+			  }
+			  console.log("Log guardado.");
+			});
 		});
 
 		db.close()
@@ -134,13 +178,28 @@ mrouter.map(function(){
 			}
 		});
 
+
+		var accion = "Baja";
 		db.run(`DELETE FROM CLIENT where id= '${usr}'`, (err) => {
 			if (err) {
 				console.error(err.message);
 				response.send("error");
+				var accion = "Error en baja";
 			} else{
 				response.send("done");
 			}
+		});
+
+		// Guarda el log  ---  fecha, ip, accion, descr
+		let ip = request.socket.remoteAddress.replace('::ffff:','');
+		let descr = `id:${id}`;
+		db.serialize(() => {
+			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			  if (err) {
+				console.error(err.message);
+			  }
+			  console.log("Log guardado.");
+			});
 		});
 
 		db.close()
@@ -150,7 +209,6 @@ mrouter.map(function(){
 })
 
 https.createServer(options, function(request, response){
-	print
 	var body = "";
 
 	request.addListener('data', function(chunk){body+=chunk});
