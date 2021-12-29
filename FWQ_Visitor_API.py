@@ -14,12 +14,14 @@ from Visitor import *
 from Ride import *
 from mapa import *
 import sys
-import customutils as cu
+from customutils import *
 from os import system
 from random import randrange
 import socket 
 import atexit
 import requests
+
+from prueba import CreaCuenta, IniciaSesion
 
 
 HOST = 'localhost'
@@ -30,7 +32,7 @@ def exit_handler():
     global nexit
     global engineCon
     nexit = False
-    cu.stopAll()
+    stopAll()
     if(isinstance(obj, socket.socket)):
         obj.close()
     if(isinstance(engineCon, KafkaConsumer)):
@@ -64,7 +66,7 @@ class MapUpdateThread(threading.Thread):
         #print("waiting")
         asdf = 0
         while(nexit):
-            m = cu.getMap(self.addr)
+            m = getMap(self.addr)
             print(m)
             sleep(1)
             #print("waiting",asdf)
@@ -82,65 +84,69 @@ class MapUpdateThread(threading.Thread):
             #mapConsumer.assign([TopicPartition(topic,0)])
     def stop():
         nexit = False
-        cu.stopAll()
+        stopAll()
 
 #Lectura y comprobación de argumentos
-cu.uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
+uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
 
 print("se comprueban los args")
 if len(sys.argv) != 4:
     print("Número erróneo de argumentos.")
-    cu.printUso()
+    printUso()
 
-addrReg = cu.checkIP(sys.argv[1],"FWQ_Registry")
+addrReg = checkIP(sys.argv[1],"FWQ_Registry")
 
-addrGes = cu.checkIP(sys.argv[2],"gestor de colas")
+addrGes = checkIP(sys.argv[2],"gestor de colas")
 
-addrEng = cu.checkIP(sys.argv[3],"engine")
+addrEng = checkIP(sys.argv[3],"engine")
 
+
+sesionIniciada = False
 op = 0
 while(op != 4):
     obj = ""
-    print("1. Crear perfil.")
-    print("2. Editar perfil.")
-    print("3. Entrar en parque.")
+    print("1. Crear cuenta.")
+    print("2. Iniciar sesion")
+    if(sesionIniciada):
+        print("3. Editar cuenta.")
+        print("4. Eliminar cuenta")
+        print("5. Entrar en parque.")
+
     op = int(input("Elige una opcion: "))
 
 
     if(op == 1):
         # CREAR CUENTA
-
-        done = False
-        while(not done):
-            name = input("Escribe tu nombre: ")
-            password = cu.HashPassword(input("Escribe tu contraseña: "))
-
-            response = requests.post("mmmmmmmmmmmmmm") # envia usuario y cntr, si se crea la cuenta, se comunica por response
-
-            #if(respuesta == "1"):
-            #   done = True
-            #else:
-            #   print("Error")
         
+        name = input("Escribe tu nombre: ")
+        password = HashPassword(input("Escribe tu contraseña: "))
 
+        if(CreaCuenta(name, password)):
+            print("Cuenta creada! Ya puedes iniciar sesion.")
+        else:
+            print("Error creando cuenta")
+
+# =================================================================================================================================================================
+
+    elif(op == 2):
+        #INICIAR SESION
+
+        name = input("Escribe tu nombre: ")
+        password = HashPassword(input("Escribe tu contraseña: "))
+        id = IniciaSesion(name, password)
+        if(id != -1):
+            print("Sesion iniciada!")
+            sesionIniciada = True
+        else:
+            print("Error iniciando sesion.")
+            sesionIniciada = False
 
 # =================================================================================================================================================================
  
-    elif(op == 2):
+    elif(sesionIniciada and op == 3):
         # EDITAR CUENTA
 
-        sesionIniciada = False
-        name = input("Escribe tu nombre: ")
-        password = cu.HashPassword(input("Escribe tu contraseña: "))
-
-        # primero se inicia sesion
-        response = requests.get("mmmmmmmmmmmmmm") # se usa get para ver que devuelva el hash de la cntr 
-        if(response == password):
-            sesionIniciada = True
-
-
-        while(sesionIniciada):
-            
+        while(True):
             print("Que campo quieres editar?")
             print("nombre[n], contraseña[c], guardar[g], cancelar[q]")
 
@@ -149,10 +155,12 @@ while(op != 4):
             if(editOp == "n"):
                 name = input("Escribe tu nombre: ")
             elif(editOp == "c"):
-                password = cu.HashPassword(input("Escribe tu contraseña: "))
+                password = HashPassword(input("Escribe tu contraseña: "))
             elif(editOp == "g"):
-                response = requests.put("mmmmmmmmmmmm") # se usa put para actualizar
-                
+                if(ModificaCuenta(id, name, password)):
+                    print("Cuenta modificada!")
+                else:
+                    print("Error modifcando la cuenta.")
                 break
 
             elif(editOp == "q"):
@@ -160,18 +168,24 @@ while(op != 4):
             else:
                 print("Opcion incorrecta.")
 
+# =================================================================================================================================================================
+ 
+    elif(sesionIniciada and op == 4):
+        # ELIMINAR CUENTA
 
+        sn = input("Estas seguro de que quieres eliminar tu cuenta?[s/n]")
+
+        if(sn == "s" or sn == "S"):
+            if(EliminaCuenta(id)):
+                print("Cuenta eliminada.")
+            else:
+                print("Error eliminando cuenta.")
+                
 # =================================================================================================================================================================
     
-    elif(op == 3):
+    elif(sesionIniciada and op == 5):
 
-        # inicia sesion
-        sesionIniciada = False
-        name = input("Escribe tu nombre: ")
-        password = cu.HashPassword(input("Escribe tu contraseña: "))
-        response = requests.get("mmmmmmmmmmmmmm") # se usa get para ver que devuelva el hash de la cntr 
-        if(response == password):
-            sesionIniciada = True
+        # ENTRA EN EL PARQUE
 
 
 
