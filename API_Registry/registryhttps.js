@@ -97,7 +97,7 @@ mrouter.map(function(){
 	// PUT actualiza el usuario especificado, devuelve si lo ha hecho
 	// https://localhost:3000/oldusr/mlb/newU/jaja/newC/lol
 	this.put(/^oldusr\/([A-Za-z0-9_]+)\/newU+\/([A-Za-z0-9_]+)\/newC+\/([A-Za-z0-9_]+)$/).bind(function (request, response, oldusr, newusr, cntr, data) {
-		console.log("Llamada a PUT para: "+usr);
+		console.log("Llamada a PUT para: "+oldusr);
 	
 		let db = new sqlite3.Database('/home/miquel/Escritorio/SD_Prac2/database.db', sqlite3.OPEN_READWRITE, (err) => {
 			if (err) {
