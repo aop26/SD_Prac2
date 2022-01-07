@@ -23,7 +23,7 @@ import requests
 
 #from prueba import CreaCuenta, IniciaSesion
 
-
+uso = "FWQ_Visitor [ip:puerto(FWQ_Registry)] [ip:puerto(gestor de colas)] [ip:puerto(engine)]"
 HOST = 'localhost'
 PORT = 5050
 obj = ""
@@ -191,8 +191,6 @@ while(op != 6):
 
             atexit.register(exit_handler)
             visitor = Visitor(id) # un boejto para un visitor
-
-            #m = [ [0 for j in range(20)] for i in range(20)] # se solicita el mapa a engine, de moemento es un array vacio
             m[visitor.x][visitor.y] = visitor
 
             clientMap = Mapa(m)
@@ -200,17 +198,18 @@ while(op != 6):
             atracciones = []
             for i in range(20):
                 for j in range(20):
-                    if(isinstance(m[i][j], Ride)): # si es una atraccion
+                    if(isinstance(clientMap.mapa[i][j], Ride)): # si es una atraccion
                         atracciones.append(m[i][j])
 
             atraccionSeleccionada = -1
             for i in range(len(atracciones)):
-                if(isinstance(m[i][j], Ride) and atracciones[i].waitingTime < 60): # si el tiempo de espera es menor a 60
+                if(atracciones[i].waitingTime < 60 and atracciones[i].accesible): # si el tiempo de espera es menor a 60
                     atraccionSeleccionada = i
                     print("selecciona:", i)
                     break
 
             atrVisitadas = []
+            timers = []
 
             hecho = False
 
@@ -221,22 +220,39 @@ while(op != 6):
                     for i in range(20):
                         for j in range(20):
                             if(isinstance(m[j][i], Ride)): # si es una atraccion
+                                sector = i//10 + j//10*2
                                 atracciones.append(m[j][i])
+                                if(not (20 <= clientMap.temperaturas[sector][1] <= 30)):
+                                    #m[j][i].accesible = False
+                                    #clientMap.mapa[j][i].accesible = False
+                                    atracciones[len(atracciones)-1].accesible = False
+                                else:
+                                    #m[j][i].accesible = True
+                                    #clientMap.mapa[j][i].accesible = True
+                                    atracciones[len(atracciones)-1].accesible = True
+                                
+
+                    for i in range(len(timers)):
+                        timers[i] -= 1
+                    if(len(timers)>0 and timers[0] == 0):
+                        atrVisitadas.pop(0)
+                        timers.pop(0)
+
 
                     if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
-                    atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
+                    atracciones[atraccionSeleccionada].waitingTime > 60 or not atracciones[atraccionSeleccionada].accesible): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
                         atraccionSeleccionada = -1
                         for i in range(len(atracciones)):
                             if(atracciones[i].waitingTime < 60 and i not in atrVisitadas): 
                                 atraccionSeleccionada = i
-                                print("selecciona:", i,atracciones[i].x,atracciones[i].y)
+                                print("selecciona:", i, " // " , atracciones[i].x,atracciones[i].y)
                                 break
 
 
                     if(visitor.timer%60 == 0):
                         if(atraccionSeleccionada == -1): # si no hay nada se mueve random
                             move = [randrange(-1, 2), randrange(-1, 2)]
-                            print("random", end="")
+                            print("random move")
                         else:
                             dX = atracciones[atraccionSeleccionada].x - visitor.x
                             dY = atracciones[atraccionSeleccionada].y - visitor.y
@@ -265,11 +281,12 @@ while(op != 6):
                                     mapWhile = False
                                     if(mr !="NO"):
                                         m = strToMap(mr)
-                            print(visitor.x, visitor.y)
+                            #print(visitor.x, visitor.y)
 
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
                             visitor.wait = 3*60 # espera 3 segundos
                             atrVisitadas.append(atraccionSeleccionada)
+                            timers.append(20*60)
                             atraccionSeleccionada = -1
                             print("waiting")
 

@@ -4,4 +4,4 @@ class Ride:
         self.y = y
         self.waitingTime = wT
         self.connected = True
-        
+        self.accesible = True
