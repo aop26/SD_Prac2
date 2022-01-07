@@ -137,8 +137,13 @@ while not hecho:
     f.close()
     delT = []
     for t in visitantes:
-        if(visitantes[t]!="NO" and time.time()-visitantes[t][2]>5):
+        if(visitantes[t]!="NO" and time.time()-visitantes[t][2]>1):
+            visitorAnswerer = cu.kp(sys.argv[1])
+            visitorAnswerer.send('engineres',cu.EncryptText(str(str(t)+','+cu.mapToStr(mapaActualizado))))
+            visitorAnswerer.close()
+        elif(visitantes[t]!="NO" and time.time()-visitantes[t][2]>5):
             delT.append(t)
+
             
     for token in delT:
         print(token,"disconnected")
