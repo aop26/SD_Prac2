@@ -69,7 +69,7 @@ mrouter.map(function(){
 		let ip = request.socket.remoteAddress.replace('::ffff:','');
 		let descr = `usr:${usr}`;
 		let fecha = Date.now();
-		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES('${fecha}', '${ip}', '${accion}', '${descr}')`, (err, row) => {
+		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES(datetime('now'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
 			if (err) {
 			console.error(err.message);
 			}else{
