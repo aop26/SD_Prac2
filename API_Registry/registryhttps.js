@@ -68,14 +68,15 @@ mrouter.map(function(){
 		// Guarda el log  ---  fecha, ip, accion, descr
 		let ip = request.socket.remoteAddress.replace('::ffff:','');
 		let descr = `usr:${usr}`;
-		db.serialize(() => {
-			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
-			  if (err) {
-				console.error(err.message);
-			  }
-			  console.log("Log guardado.");
-			});
+		let fecha = Date.now();
+		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES(datetime('now'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			if (err) {
+			console.error(err.message);
+			}else{
+			console.log("Log guardado.");
+			}
 		});
+		
 
 		db.close()
 	});
@@ -110,13 +111,13 @@ mrouter.map(function(){
 		// Guarda el log  ---  fecha, ip, accion, descr
 		let ip = request.socket.remoteAddress.replace('::ffff:','');
 		let descr = `usr:${usr}`;
-		db.serialize(() => {
-			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
-			  if (err) {
-				console.error(err.message);
-			  }
-			  console.log("Log guardado.");
-			});
+		let fecha = Date.now();
+		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES('${fecha}', '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			if (err) {
+			console.error(err.message);
+			}else{
+			console.log("Log guardado.");
+			}
 		});
 
 		db.close()
@@ -151,13 +152,13 @@ mrouter.map(function(){
 		// Guarda el log  ---  fecha, ip, accion, descr
 		let ip = request.socket.remoteAddress.replace('::ffff:','');
 		let descr = `id;${id}, usr:${usr}`;
-		db.serialize(() => {
-			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
-			  if (err) {
-				console.error(err.message);
-			  }
-			  console.log("Log guardado.");
-			});
+		let fecha = Date.now();
+		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES('${fecha}', '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			if (err) {
+			console.error(err.message);
+			}else{
+			console.log("Log guardado.");
+			}
 		});
 
 		db.close()
@@ -193,13 +194,13 @@ mrouter.map(function(){
 		// Guarda el log  ---  fecha, ip, accion, descr
 		let ip = request.socket.remoteAddress.replace('::ffff:','');
 		let descr = `id:${id}`;
-		db.serialize(() => {
-			db.each(`INSERT into LOGS VALUES(SELECT datetime('now','localtime'), '${ip}', '${accion}', '${descr}')`, (err, row) => {
-			  if (err) {
-				console.error(err.message);
-			  }
-			  console.log("Log guardado.");
-			});
+		let fecha = Date.now();
+		db.run(`INSERT into LOGS(fecha, ip, accion, descripcion) VALUES('${fecha}', '${ip}', '${accion}', '${descr}')`, (err, row) => {
+			if (err) {
+			console.error(err.message);
+			}else{
+			console.log("Log guardado.");
+			}
 		});
 
 		db.close()
