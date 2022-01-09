@@ -13,6 +13,7 @@ from FWQ_Registry import FORMAT
 from Visitor import *
 from Ride import *
 import mapa
+from mapa import temperaturas
 import sys
 from customutils import *
 from os import system
@@ -41,21 +42,43 @@ def exit_handler():
 
 atexit.register(exit_handler)
 m = "NO"
+lastime = time.time()
+global hecho
+hecho = False
+global salir
+salir = False
 class MapUpdateThread(threading.Thread):
-    def __init__(self, addr):
+    def __init__(self, addr, token):
         threading.Thread.__init__(self)
         self.addr = addr
         self.name = "FWQ_EngineVisitorMapConsumer"
         self.visitantes = 0
+        self.token = token
     def run(self):
-        global nexit
         global m
-        mapConsumer = None
-        asdf = 0
-        while(nexit):
-            m = getMap(self.addr)
-            print(m)
-            sleep(1)
+        global salir
+
+        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None, consumer_timeout_ms=5000)#kc(sys.argv[2], 'engineres')
+        mapConsumer.poll(timeout_ms=200)
+        while(not salir):
+            try:
+                msg = next(mapConsumer)
+            except:
+                print('Desconectado de engine. Hay que volver a iniciar sesion.')
+                salir = True
+                continue
+            message = DecryptText(msg.value).replace("b'",'').replace("'",'')
+            print(message)
+            tokent=message.split(',')[0]
+            if(tokent == self.token):
+                mr = message.split(',')[1]
+                if(mr !="NO"):
+                    lastime = time.time()
+                    m = strToMap(mr)
+            if(time.time()-lastime > 5):
+                print('Desconectado de engine. Hay que volver a iniciar sesion.')
+                salir = True
+
     def stop():
         nexit = False
         stopAll()
@@ -73,6 +96,7 @@ addrReg = checkIP(sys.argv[1],"FWQ_Registry")
 addrGes = checkIP(sys.argv[2],"gestor de colas")
 
 #addrEng = checkIP(sys.argv[3],"engine")
+
 
 
 sesionIniciada = False
@@ -178,7 +202,9 @@ while(op != 6):
                 token = message.split(',')[1]
                 if(token !="NO"):
                     m = strToMap(message.split(',')[2])
-
+        mapConsumer.close()
+        mut = MapUpdateThread(sys.argv[2], token)
+        mut.start()
         if(m!=-1):
             def exit_handler():
                 global nexit
@@ -194,42 +220,41 @@ while(op != 6):
             m[visitor.x][visitor.y] = visitor
 
             clientMap = mapa.Mapa(m)
-
             atracciones = []
             for i in range(20):
                 for j in range(20):
-                    if(isinstance(clientMap.mapa[i][j], Ride)): # si es una atraccion
+                    if(isinstance(m[i][j], Ride)): # si es una atraccion
                         atracciones.append(m[i][j])
 
             atraccionSeleccionada = -1
             for i in range(len(atracciones)):
-                if(atracciones[i].waitingTime < 60 and atracciones[i].accesible): # si el tiempo de espera es menor a 60
+                sector = atracciones[i].x//10 + atracciones[i].y//10*2
+                print(i, atracciones[i].abierta(temperaturas), sector, temperaturas[sector][1], atracciones[i].x, atracciones[i].y)
+                if(atracciones[i].waitingTime < 60 and atracciones[i].waitingTime!=-1 and atracciones[i].abierta(temperaturas)): # si el tiempo de espera es menor a 60
                     atraccionSeleccionada = i
                     print("selecciona:", i)
                     break
 
             atrVisitadas = []
             timers = []
-
-            hecho = False
-
-            while not hecho:
+            while not hecho and not salir:
 
                 if(visitor.wait == 0):
                     atracciones = []
                     for i in range(20):
                         for j in range(20):
-                            if(isinstance(m[j][i], Ride)): # si es una atraccion
-                                sector = i//10 + j//10*2
-                                atracciones.append(m[j][i])
-                                if(not (20 <= clientMap.temperaturas[sector][1] <= 30)):
-                                    #m[j][i].accesible = False
-                                    #clientMap.mapa[j][i].accesible = False
-                                    atracciones[len(atracciones)-1].accesible = False
-                                else:
-                                    #m[j][i].accesible = True
-                                    #clientMap.mapa[j][i].accesible = True
-                                    atracciones[len(atracciones)-1].accesible = True
+                            if(isinstance(m[i][j], Ride)): # si es una atraccion
+                    #            sector = i//10 + j//10*2
+                                atracciones.append(m[i][j])
+                    #            if(not (20 <= clientMap.temperaturas[sector][1] <= 30)):
+                    #                #m[j][i].accesible = False
+                    #                #clientMap.mapa[j][i].accesible = False
+                    #                atracciones[len(atracciones)-1].accesible = False
+                    #            else:
+                    #                #m[j][i].accesible = True
+                    #                #clientMap.mapa[j][i].accesible = True
+                    #                atracciones[len(atracciones)-1].accesible = True
+                    
                                 
 
                     for i in range(len(timers)):
@@ -240,7 +265,7 @@ while(op != 6):
 
 
                     if(atraccionSeleccionada == -1 or            # si no hay nada con menos de 60 mins o
-                    atracciones[atraccionSeleccionada].waitingTime > 60 or not atracciones[atraccionSeleccionada].accesible): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
+                    atracciones[atraccionSeleccionada].waitingTime > 60): # la atraccion seleccionada tiene mas de 60 mins se vuelve a buscar
                         atraccionSeleccionada = -1
                         for i in range(len(atracciones)):
                             if(atracciones[i].waitingTime < 60 and i not in atrVisitadas and atracciones[i].abierta(mapa.temperaturas)): 
@@ -271,16 +296,16 @@ while(op != 6):
                             m[visitor.x+move[0]][visitor.y+move[1]] = aux
                             visitor.Move(move)
                             engineCon.send('movements',EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
-                            mapWhile = True
-                            while(mapWhile):
-                                msg = next(mapConsumer)
-                                message = DecryptText(msg.value).replace("b'",'').replace("'",'')
-                                tokent=message.split(',')[0]
-                                if(tokent == token):
-                                    mr = message.split(',')[1]
-                                    mapWhile = False
-                                    if(mr !="NO"):
-                                        m = strToMap(mr)
+                            #mapWhile = True
+                            #while(mapWhile):
+                            #    msg = next(mapConsumer)
+                            #    message = DecryptText(msg.value).replace("b'",'').replace("'",'')
+                            #    tokent=message.split(',')[0]
+                            #    if(tokent == token):
+                            #        mr = message.split(',')[1]
+                            #        mapWhile = False
+                            #        if(mr !="NO"):
+                            #            m = strToMap(mr)
                             #print(visitor.x, visitor.y)
 
                         elif(isinstance(m[visitor.x+move[0]][visitor.y+move[1]], Ride) and visitor.IsIn(atracciones[atraccionSeleccionada])):
@@ -298,16 +323,16 @@ while(op != 6):
                                 m[visitor.x+move[0]][visitor.y+move[1]] = aux
                                 visitor.Move(move)
                                 engineCon.send('movements',EncryptText('move,'+token+','+str(visitor.x)+','+str(visitor.y)+','+str(visitor.id)))
-                                mapWhile = True
-                                while(mapWhile):
-                                    msg = next(mapConsumer)
-                                    message = DecryptText(msg.value).replace("b'",'').replace("'",'')
-                                    tokent=message.split(',')[0]
-                                    if(tokent == token):
-                                        mr = message.split(',')[1]
-                                        mapWhile = False
-                                        if(mr !="NO"):
-                                            m = strToMap(mr)
+                                #mapWhile = True
+                                #while(mapWhile):
+                                #    msg = next(mapConsumer)
+                                #    message = DecryptText(msg.value).replace("b'",'').replace("'",'')
+                                #    tokent=message.split(',')[0]
+                                #    if(tokent == token):
+                                #        mr = message.split(',')[1]
+                                #        mapWhile = False
+                                #        if(mr !="NO"):
+                                #            m = strToMap(mr)
                             # else: si es un visitor se espera. 
                         
                         #m = getMap(addrGes,done)
@@ -333,7 +358,8 @@ while(op != 6):
                 visitor.timer += 1
 
 
-            op = 6
+            op = 5
+        mut.join()
 
 
     else:

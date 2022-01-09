@@ -16,6 +16,8 @@ nexit = True
 mapaEngine = Mapa(cu.mapaVacio())
 mapaActualizado = cu.mapaVacio()
 visitantes = {}
+delT = []
+mT = []
 
 class VisitorMovementThread(threading.Thread):
     def __init__(self, addr):
@@ -36,13 +38,13 @@ class VisitorMovementThread(threading.Thread):
             data = message.split(',')[1]
             if(action=="join"):
                 if((data not in visitantes or visitantes[data]=="NO")  and len(visitantes)>int(sys.argv[2])):
-                    visitantes[data]="NO"
+                    mT.append([data,"NO"])
                     txt = cu.EncryptText(str(str(data)+',NO'))
                     visitorAnswerer.send('engineres',txt)
                     print(data," no cabe en el parque!")
                 else:
                     token = uuid4()
-                    visitantes[str(token)]=[0,0,time.time()]
+                    mT.append([str(token),[0,0,time.time()]])
                     txt = cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))#cu.EncryptText(str(str(data)+','+str(token)+','+cu.mapToStr(mapaActualizado)))
                     visitorAnswerer.send('engineres',txt)
                     print(data," ha iniciado sesión!")
@@ -50,12 +52,11 @@ class VisitorMovementThread(threading.Thread):
                 mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
                 posx=int(message.split(',')[2])
                 posy=int(message.split(',')[3])
-                visitantes[data] = [posx,posy, time.time()]
+                mT.append([data,[posx,posy, time.time()]])
                 mapaActualizado[posx][posy]=Visitor(int(message.split(',')[4]))
                 visitorAnswerer.send('engineres',cu.EncryptText(str(str(token)+','+cu.mapToStr(mapaActualizado))))
             elif(action=="exit"and data in visitantes and visitantes[data]!="NO"):
-                mapaActualizado[visitantes[data][0]][visitantes[data][1]]=0
-                visitantes.pop(data)
+                delT.append(data)
             mapaEngine.Update(mapaActualizado)
     def stop():
         cu.stopAll()
@@ -135,7 +136,9 @@ while not hecho:
     f = open("map.txt","w")
     f.write(cu.mapToStr(mapaActualizado))
     f.close()
-    delT = []
+    for t in mT:
+        visitantes[t[0]]=t[1]
+    mT=[]
     for t in visitantes:
         if(visitantes[t]!="NO" and time.time()-visitantes[t][2]>1):
             visitorAnswerer = cu.kp(sys.argv[1])
@@ -150,5 +153,6 @@ while not hecho:
         mapaActualizado[visitantes[token][0]][visitantes[token][1]]=0
         visitantes.pop(token)
         mapaEngine.Update(mapaActualizado)
+    delT = []
 
 quit()

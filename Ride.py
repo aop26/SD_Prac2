@@ -7,6 +7,7 @@ class Ride:
     def abierta(self, temperaturas):
         sector = self.x//10 + self.y//10*2
         if(20 <= temperaturas[sector][1] <= 30):
+            print(temperaturas[sector][1])
             return True
         return False
         
