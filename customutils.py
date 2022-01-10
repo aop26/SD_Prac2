@@ -294,7 +294,7 @@ def mapaVacio():
     return mapaActualizado
 
 
-def GetWeather(data, key):
+def GetWeather(data, key=""):
     weather = []
     file = open("cities.txt", "r")
     url = file.readline().split()
@@ -315,7 +315,7 @@ def GetWeather(data, key):
                 weather.append(data[pos])
         except:
             weather.append(["error", -1])
-    return weather, apiKey
+    return weather
 
 
 # ENCRIPTACION / HASHES
