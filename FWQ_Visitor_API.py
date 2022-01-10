@@ -68,7 +68,7 @@ class MapUpdateThread(threading.Thread):
                 salir = True
                 continue
             message = DecryptText(msg.value).replace("b'",'').replace("'",'')
-            print(message)
+            #print(message)
             tokent=message.split(',')[0]
             if(tokent == self.token):
                 mr = message.split(',')[1]
@@ -76,7 +76,7 @@ class MapUpdateThread(threading.Thread):
                     lastime = time.time()
                     m = strToMap(mr)
             if(time.time()-lastime > 5):
-                print('Desconectado de engine. Hay que volver a iniciar sesion.')
+                print('Clave no compartida con engine. Hay que volver a iniciar sesion.')
                 salir = True
 
     def stop():
@@ -188,13 +188,17 @@ while(op != 6):
 
 
         engineCon = kp(sys.argv[2])
-        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None)#kc(sys.argv[2], 'engineres')
+        mapConsumer = kafka.KafkaConsumer("engineres",bootstrap_servers=sys.argv[2],group_id=None, consumer_timeout_ms=5000)#kc(sys.argv[2], 'engineres')
         mapConsumer.poll(timeout_ms=200)
         engineCon.send('movements',EncryptText('join,'+id))
         token = None
         m = -1
         while(not token):
-            msg = next(mapConsumer)
+            try: 
+                msg = next(mapConsumer)
+            except:
+                print("Engine no conectado a kafka. ")
+                continue
             message = DecryptText(msg.value).replace("b'",'').replace("'",'')
             print(message)
             namet=message.split(',')[0]
