@@ -57,7 +57,7 @@ class Mapa:
                                 if(isinstance(self.mapa[i][j], Ride)):
                                     self.mapa[i][j].connected = not self.mapa[i][j].connected 
 
-        temperaturas = GetWeather(temperaturas)
+        #temperaturas = GetWeather(temperaturas)
 
         self.pantalla.fill(BLANCO)
 
